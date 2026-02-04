@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@bsv/sdk": "1.10.3",
@@ -63,6 +64,8 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
+    "sharp": "^0.33.5",
+    "to-ico": "^1.1.5",
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
     "@types/react": "^19",

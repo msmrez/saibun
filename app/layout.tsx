@@ -21,8 +21,9 @@ export const metadata: Metadata = {
   keywords: ['BSV', 'UTXO', 'Bitcoin', 'Splitter', 'Offline', 'Transaction'],
   authors: [{ name: 'Saibun' }],
   icons: {
-    icon: '/icon.svg',
-    apple: '/icon.svg',
+    icon: '/logo.png',
+    apple: '/logo.png',
+    shortcut: '/logo.png',
   },
 }
 
