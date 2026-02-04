@@ -184,7 +184,7 @@ function DonationDialog() {
         <DialogHeader>
           <DialogTitle className="text-center">Support Saibun</DialogTitle>
           <DialogDescription className="text-center">
-            Your donation is an anchor - a way to show you believe in this project and want to see it continue growing.
+            Your donation is an anchor of support that helps the project continue to grow.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">

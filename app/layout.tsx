@@ -18,7 +18,6 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'Saibun - BSV UTXO Splitter',
   description: 'A minimal, offline-capable tool for splitting UTXOs on the BSV blockchain. Generate keys, build transactions, and broadcast or download - all with precision.',
-  generator: 'v0.app',
   keywords: ['BSV', 'UTXO', 'Bitcoin', 'Splitter', 'Offline', 'Transaction'],
   authors: [{ name: 'Saibun' }],
   icons: {
