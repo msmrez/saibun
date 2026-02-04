@@ -175,16 +175,19 @@ function DonationDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 border-border bg-transparent text-foreground hover:bg-secondary hover:text-foreground">
-          <Heart className="h-3.5 w-3.5 text-[#2F6F5E]" />
-          <span className="hidden sm:inline">Donate</span>
-        </Button>
+        <button
+          type="button"
+          className="hover:text-foreground transition-colors flex items-center gap-1 text-xs text-muted-foreground"
+        >
+          <Heart className="h-3 w-3 text-[#2F6F5E]" />
+          Support
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center">Support Saibun</DialogTitle>
           <DialogDescription className="text-center">
-            Your donation is an anchor of support that helps the project continue to grow.
+            Your donation is an anchor of support that helps the project continue to grow (•‿•)
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">
@@ -393,7 +396,6 @@ export default function SaibunPage() {
                 </Button>
               )}
               <ThemeToggle />
-              <DonationDialog />
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="hidden sm:inline">Offline-capable</span>
                 <div className="w-2 h-2 rounded-full bg-[#2F6F5E]" />
@@ -515,6 +517,7 @@ export default function SaibunPage() {
                 Bitails API
                 <ExternalLink className="h-3 w-3" />
               </a>
+              <DonationDialog />
             </div>
           </div>
         </div>
