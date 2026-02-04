@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -375,26 +374,36 @@ export function TransactionBuilder({
             </CardContent>
           </Card>
 
-          {/* Raw Transaction */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-xs sm:text-sm font-medium">Raw Transaction Hex</p>
+          {/* Raw Transaction — compact: no full hex to avoid huge scroll */}
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/50 bg-muted/30 px-3 py-2 sm:px-4 sm:py-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <p className="text-xs sm:text-sm font-medium text-foreground">Raw transaction hex</p>
+              <span className="text-[10px] sm:text-xs text-muted-foreground">
+                ({txDetails.size.toLocaleString()} bytes)
+              </span>
+            </div>
+            <div className="flex items-center gap-1 sm:gap-2">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => copyToClipboard(txDetails.hex, "Raw transaction hex")}
-                className="gap-1 h-9 text-xs"
+                className="gap-1 h-8 sm:h-9 text-xs"
                 aria-label="Copy raw transaction hex"
               >
                 <Copy className="h-3 w-3" />
                 Copy
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDownload}
+                className="gap-1 h-8 sm:h-9 text-xs"
+                aria-label="Download raw transaction hex file"
+              >
+                <Download className="h-3 w-3" />
+                Download
+              </Button>
             </div>
-            <Textarea
-              value={txDetails.hex}
-              readOnly
-              className="font-mono text-[10px] sm:text-xs min-h-[80px] sm:min-h-[100px] bg-muted/30"
-            />
           </div>
 
           {isOfflineMode && !broadcastSuccess && (

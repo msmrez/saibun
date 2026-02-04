@@ -5,13 +5,27 @@ import {
   P2PKH,
   Transaction,
   HD,
+  LockingScript,
   type TransactionInput,
   type TransactionOutput,
 } from "@bsv/sdk";
 
 const P2PKH_INPUT_SIZE_BYTES = 148;
 const P2PKH_OUTPUT_SIZE_BYTES = 34;
+const OP_RETURN_OUTPUT_SIZE_BYTES = 44; // OP_0 OP_RETURN + ~31-byte payload
 const TX_OVERHEAD_BYTES = 10;
+
+const OP_RETURN_NOTE = "powered by https://saibun.io";
+function textToHex(s: string): string {
+  const bytes = new TextEncoder().encode(s);
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+const OP_RETURN_SCRIPT_HEX =
+  "006a" +
+  new TextEncoder().encode(OP_RETURN_NOTE).length.toString(16).padStart(2, "0") +
+  textToHex(OP_RETURN_NOTE);
 export interface BitailsUtxo {
   txid: string;
   vout: number;
@@ -41,6 +55,8 @@ export interface SplitConfig {
   derivationPath?: string;
   startIndex?: number;
   derivedAddresses?: string[];
+  /** Optional. If set, change goes here; otherwise change goes to source address. */
+  changeAddress?: string;
 }
 
 export interface TransactionDetails {
@@ -174,21 +190,28 @@ export function deriveAddressesFromXpub(
 
 export function estimateTransactionSize(
   inputCount: number,
-  outputCount: number
+  p2pkhOutputCount: number,
+  opReturnCount: number = 1
 ): number {
   return (
     TX_OVERHEAD_BYTES +
     inputCount * P2PKH_INPUT_SIZE_BYTES +
-    outputCount * P2PKH_OUTPUT_SIZE_BYTES
+    p2pkhOutputCount * P2PKH_OUTPUT_SIZE_BYTES +
+    opReturnCount * OP_RETURN_OUTPUT_SIZE_BYTES
   );
 }
 
 export function calculateFee(
   inputCount: number,
-  outputCount: number,
-  feeRate: number
+  p2pkhOutputCount: number,
+  feeRate: number,
+  opReturnCount: number = 1
 ): number {
-  const size = estimateTransactionSize(inputCount, outputCount);
+  const size = estimateTransactionSize(
+    inputCount,
+    p2pkhOutputCount,
+    opReturnCount
+  );
   return Math.ceil(size * feeRate);
 }
 
@@ -214,7 +237,8 @@ export async function buildSplitTransaction(
   const estimatedFee = calculateFee(
     utxos.length,
     config.outputCount + 1,
-    config.feeRate
+    config.feeRate,
+    1
   );
 
   if (totalInput < totalRequiredOutput + estimatedFee) {
@@ -273,6 +297,12 @@ export async function buildSplitTransaction(
 
   const outputs: TransactionOutput[] = [];
 
+  // OP_RETURN as first output: "powered by https://saibun.io"
+  outputs.push({
+    lockingScript: LockingScript.fromHex(OP_RETURN_SCRIPT_HEX),
+    satoshis: 0,
+  });
+
   for (let i = 0; i < config.outputCount; i++) {
     outputs.push({
       lockingScript: p2pkh.lock(recipientAddresses[i]),
@@ -284,10 +314,13 @@ export async function buildSplitTransaction(
   const change = totalInput - totalOutputSatoshis - estimatedFee;
   const dustThreshold = 1;
   const hasChange = change > dustThreshold;
-  
+  const changeAddress = config.changeAddress?.trim()
+    ? config.changeAddress.trim()
+    : sourceAddress;
+
   if (hasChange) {
     outputs.push({
-      lockingScript: p2pkh.lock(sourceAddress),
+      lockingScript: p2pkh.lock(changeAddress),
       satoshis: change,
     });
   }
@@ -300,10 +333,13 @@ export async function buildSplitTransaction(
 
   const outputDetails = outputs.map((output, index) => {
     const isChange = hasChange && index === outputs.length - 1;
+    const isOpReturn = index === 0;
     return {
-      address: isChange
-        ? sourceAddress
-        : recipientAddresses[Math.min(index, recipientAddresses.length - 1)],
+      address: isOpReturn
+        ? "(OP_RETURN)"
+        : isChange
+          ? changeAddress
+          : recipientAddresses[Math.min(index - 1, recipientAddresses.length - 1)],
       satoshis: output.satoshis as number,
       isChange,
     };

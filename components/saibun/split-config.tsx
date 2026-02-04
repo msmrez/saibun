@@ -54,6 +54,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
   const [xpubValid, setXpubValid] = useState(false);
   const [derivedAddresses, setDerivedAddresses] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [changeAddress, setChangeAddress] = useState("");
   const [localUtxos, setLocalUtxos] = useState<BitailsUtxo[]>(utxos);
   const [rawTxInputs, setRawTxInputs] = useState<Record<string, string>>({});
 
@@ -99,10 +100,18 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
 
   const totalInput = localUtxos.reduce((sum, u) => sum + u.satoshis, 0);
   const totalOutput = utxoCount * satoshisPerUtxo;
-  const estimatedFee = calculateFee(localUtxos.length, utxoCount + 1, feeRate);
+  const estimatedFee = calculateFee(
+    localUtxos.length,
+    utxoCount + 1,
+    feeRate,
+    1
+  );
   const estimatedChange = totalInput - totalOutput - estimatedFee;
 
-  const maxUtxos = Math.floor((totalInput - calculateFee(localUtxos.length, 2, feeRate)) / DUST_THRESHOLD);
+  const maxUtxos = Math.floor(
+    (totalInput - calculateFee(localUtxos.length, 2, feeRate, 1)) /
+      DUST_THRESHOLD
+  );
   const MAX_OUTPUTS = 20000;
   const suggestedUtxoCount = Math.min(
     Math.floor((totalInput - estimatedFee) / satoshisPerUtxo),
@@ -182,6 +191,11 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
       return;
     }
 
+    if (changeAddress.trim() && !isValidAddress(changeAddress.trim())) {
+      setError("Change address is not a valid BSV address");
+      return;
+    }
+
     const config: SplitConfigType = {
       outputCount: utxoCount,
       satoshisPerOutput: satoshisPerUtxo,
@@ -192,6 +206,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
       derivationPath: mode === "xpub" ? derivationPath : undefined,
       startIndex: mode === "xpub" ? startIndex : undefined,
       derivedAddresses: mode === "xpub" ? derivedAddresses : undefined,
+      changeAddress: changeAddress.trim() || undefined,
     };
 
     onConfigReady(config, localUtxos);
@@ -391,6 +406,22 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
                   />
                   <p className="text-[10px] text-muted-foreground">
                     Addresses will be derived from index {startIndex} to {startIndex + utxoCount - 1}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="change-address" className="text-xs font-medium">
+                    Change address (optional)
+                  </Label>
+                  <Input
+                    id="change-address"
+                    placeholder={sourceAddress ? `${sourceAddress.slice(0, 12)}...` : "Leave empty = source address"}
+                    value={changeAddress}
+                    onChange={(e) => setChangeAddress(e.target.value)}
+                    className="font-mono text-xs"
+                  />
+                  <p className="text-[10px] text-muted-foreground">
+                    Remaining balance goes here. Empty = change back to source address.
                   </p>
                 </div>
               </div>
