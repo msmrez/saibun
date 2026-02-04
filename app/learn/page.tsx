@@ -209,7 +209,7 @@ export default function LearnPage() {
               <AccordionItem value="broadcast">
                 <AccordionTrigger>Do I have to broadcast from Saibun?</AccordionTrigger>
                 <AccordionContent>
-                  No. You can always download the raw transaction hex and broadcast later via Bitails, WhatsOnChain, or your own node.
+                  No. You can always download the raw transaction hex and broadcast later via Bitails or other inderxers and BSV nodes.
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

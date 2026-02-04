@@ -103,9 +103,10 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
   const estimatedChange = totalInput - totalOutput - estimatedFee;
 
   const maxUtxos = Math.floor((totalInput - calculateFee(localUtxos.length, 2, feeRate)) / DUST_THRESHOLD);
+  const MAX_OUTPUTS = 20000;
   const suggestedUtxoCount = Math.min(
     Math.floor((totalInput - estimatedFee) / satoshisPerUtxo),
-    100
+    MAX_OUTPUTS
   );
 
   const handleRawTxInput = (utxoKey: string, hex: string) => {
@@ -457,10 +458,12 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
                 </Button>
                 <Input
                   type="number"
+                  min={1}
+                  max={MAX_OUTPUTS}
                   value={utxoCount}
                   onChange={(e) =>
                     setUtxoCount(
-                      Math.max(1, Math.min(1000, parseInt(e.target.value) || 1))
+                      Math.max(1, Math.min(MAX_OUTPUTS, parseInt(e.target.value) || 1))
                     )
                   }
                   className="w-20 text-center text-xs sm:text-sm"
@@ -469,7 +472,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
                   variant="outline"
                   size="icon"
                   className="h-10 w-10 bg-transparent"
-                  onClick={() => setUtxoCount(Math.min(1000, utxoCount + 1))}
+                  onClick={() => setUtxoCount(Math.min(MAX_OUTPUTS, utxoCount + 1))}
                   aria-label="Increase number of UTXOs"
                 >
                   <Plus className="h-3 w-3" />
@@ -479,6 +482,9 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
             <p className="text-[10px] sm:text-xs text-muted-foreground">
               Max possible: ~{maxUtxos.toLocaleString()} UTXOs | Suggested:{" "}
               {suggestedUtxoCount.toLocaleString()} UTXOs
+            </p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">
+              Up to {MAX_OUTPUTS.toLocaleString()} outputs supported.
             </p>
           </div>
 

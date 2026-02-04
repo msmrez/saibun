@@ -409,7 +409,7 @@ export function TransactionBuilder({
                       What to do with the downloaded hex file
                     </p>
                     <p className="text-xs text-muted-foreground leading-relaxed">
-                      When you're back online, broadcast the raw transaction hex using Bitails API endpoint or the explorer tools, other indexers API endpoint or tools, or any BSV node's <code className="text-[10px] bg-background px-1 py-0.5 rounded">sendrawtransaction</code> RPC.
+                      When you're back online, broadcast the raw transaction hex using the Bitails API or Bitails explorer tools only.
                     </p>
                     <p className="text-xs text-muted-foreground leading-relaxed pt-1">
                       The hex file contains the complete signed transaction ready to broadcast.
@@ -469,12 +469,12 @@ export function TransactionBuilder({
                     </p>
                   </div>
                   <a
-                    href={`https://whatsonchain.com/tx/${txDetails.txid}`}
+                    href={`https://bitails.io/tx/${txDetails.txid}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-accent hover:underline flex items-center gap-1 text-xs sm:text-sm shrink-0"
                   >
-                    View
+                    View on Bitails
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>

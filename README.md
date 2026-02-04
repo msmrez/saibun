@@ -209,10 +209,8 @@ Before going offline, you need to gather the following data for each UTXO you wa
    - Download the raw transaction hex file
 
 5. **Broadcast Later**
-   - When you're back online, broadcast the raw hex using:
+   - When you're back online, broadcast the raw hex using Bitails or any other indexer, Or any BSV node's `sendrawtransaction` RPC:
      - Bitails API: `POST https://api.bitails.io/tx/broadcast`
-     - WhatsOnChain: `POST https://api.whatsonchain.com/v1/bsv/main/tx/raw`
-     - Or any BSV node's `sendrawtransaction` RPC
 
 ---
 
