@@ -55,41 +55,52 @@ sudo mkdir -p "$TARGET_DIR"
 sudo mkdir -p "$TARGET_DIR/.next"
 echo ""
 
-# Step 6: Copy standalone server
+# Step 6: Copy standalone server (this includes the server.js)
 echo -e "${YELLOW}📋 Copying standalone server...${NC}"
 sudo rm -rf "$TARGET_DIR/.next/standalone"
 sudo cp -r "$SOURCE_DIR/.next/standalone" "$TARGET_DIR/.next/"
 echo ""
 
-# Step 7: Copy static assets
+# Step 7: Copy static assets (critical for Next.js)
 echo -e "${YELLOW}📋 Copying static assets...${NC}"
 sudo rm -rf "$TARGET_DIR/.next/static"
 sudo cp -r "$SOURCE_DIR/.next/static" "$TARGET_DIR/.next/"
 echo ""
 
-# Step 8: Copy public directory
+# Step 8: Copy public directory (for logo.png and other public assets)
 echo -e "${YELLOW}📋 Copying public assets...${NC}"
 sudo rm -rf "$TARGET_DIR/public"
 sudo cp -r "$SOURCE_DIR/public" "$TARGET_DIR/"
 echo ""
 
-# Step 9: Copy package.json (needed for standalone)
+# Step 9: Ensure standalone can access static files
+# Next.js standalone expects static files relative to the standalone directory
+echo -e "${YELLOW}📋 Setting up static file symlinks...${NC}"
+if [ ! -L "$TARGET_DIR/.next/standalone/.next/static" ]; then
+    sudo ln -sf "$TARGET_DIR/.next/static" "$TARGET_DIR/.next/standalone/.next/static" 2>/dev/null || true
+fi
+if [ ! -L "$TARGET_DIR/.next/standalone/public" ]; then
+    sudo ln -sf "$TARGET_DIR/public" "$TARGET_DIR/.next/standalone/public" 2>/dev/null || true
+fi
+echo ""
+
+# Step 10: Copy package.json (needed for standalone)
 echo -e "${YELLOW}📋 Copying package.json...${NC}"
 sudo cp "$SOURCE_DIR/package.json" "$TARGET_DIR/"
 echo ""
 
-# Step 10: Set permissions
+# Step 11: Set permissions
 echo -e "${YELLOW}🔐 Setting permissions...${NC}"
 sudo chown -R www-data:www-data "$TARGET_DIR"
 sudo chmod -R 755 "$TARGET_DIR"
 echo ""
 
-# Step 11: Restart service
+# Step 12: Restart service
 echo -e "${YELLOW}🔄 Restarting service...${NC}"
 sudo systemctl restart "$SERVICE_NAME"
 echo ""
 
-# Step 12: Check service status
+# Step 13: Check service status
 echo -e "${YELLOW}📊 Checking service status...${NC}"
 sleep 2
 if sudo systemctl is-active --quiet "$SERVICE_NAME"; then
