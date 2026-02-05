@@ -503,10 +503,14 @@ export default function SaibunPage() {
               </Link>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="hover:text-foreground transition-colors flex items-center gap-1"
+                className="hover:text-foreground transition-colors flex items-center gap-1 group relative"
+                title={CONTACT_EMAIL}
               >
                 <Mail className="h-3 w-3" />
-                Contact
+                <span>Contact</span>
+                <span className="absolute left-0 bottom-full mb-2 px-2 py-1 text-xs bg-popover border border-border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                  {CONTACT_EMAIL}
+                </span>
               </a>
               <a
                 href="https://docs.bitails.io"

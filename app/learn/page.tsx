@@ -77,6 +77,33 @@ export default function LearnPage() {
         <Separator />
 
         <section className="space-y-4">
+          <h2 className="text-lg sm:text-xl font-medium text-foreground">About the name</h2>
+          <Card className="border-border/50 bg-muted/20">
+            <CardContent className="p-4 sm:p-6 space-y-3">
+              <div className="flex items-start gap-3">
+                <div className="text-2xl sm:text-3xl font-medium text-foreground shrink-0">
+                  細分
+                </div>
+                <div className="space-y-2 flex-1">
+                  <p className="text-sm sm:text-base font-medium text-foreground">
+                    Saibun (細分)
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Japanese for "splitting into smaller parts" or "subdivision". The name reflects the tool's core purpose: 
+                    breaking down larger UTXOs into many smaller, more manageable outputs.
+                  </p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    Just as 細分 means precision division, Saibun helps you precisely control how your UTXOs are split.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        <Separator />
+
+        <section className="space-y-4">
           <h2 className="text-lg sm:text-xl font-medium text-foreground">Why split UTXOs?</h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Card className="border-border/50">
