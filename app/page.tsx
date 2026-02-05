@@ -22,7 +22,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 
 const DONATION_BSV = "12smcX7jymSNSyq35JE8AhV1s3jV45rszz";
 const DONATION_BTC = "bc1q2x9hzq8tl0stlrsfyxsyehuh59m08ghcl9rwxa";
-const CONTACT_EMAIL = "msmrz@proton.me";
+const CONTACT_EMAIL = "contact@saibun.io";
 
 type Step = "keys" | "utxos" | "config" | "build";
 
@@ -187,7 +187,7 @@ function DonationDialog() {
         <DialogHeader>
           <DialogTitle className="text-center">Support Saibun</DialogTitle>
           <DialogDescription className="text-center">
-            Your donation is an anchor of support that helps the project continue to grow (•‿•)
+            Your donation is an anchor of support that helps the project continue to grow.
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col items-center gap-4 py-4">

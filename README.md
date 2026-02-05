@@ -307,7 +307,7 @@ If you find Saibun useful, consider supporting its development:
 
 ## Contact
 
-- Email: msmrz@proton.me
+- Email: contact@saibun.io
 - GitHub: [github.com/msmrez/saibun](https://github.com/msmrez/saibun)
 
 ---

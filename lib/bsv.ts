@@ -15,7 +15,7 @@ const P2PKH_OUTPUT_SIZE_BYTES = 34;
 const OP_RETURN_OUTPUT_SIZE_BYTES = 44; // OP_0 OP_RETURN + ~31-byte payload
 const TX_OVERHEAD_BYTES = 10;
 
-const OP_RETURN_NOTE = "powered by https://saibun.io";
+const OP_RETURN_NOTE = "Powered by https://saibun.io";
 function textToHex(s: string): string {
   const bytes = new TextEncoder().encode(s);
   return Array.from(bytes)
@@ -297,7 +297,7 @@ export async function buildSplitTransaction(
 
   const outputs: TransactionOutput[] = [];
 
-  // OP_RETURN as first output: "powered by https://saibun.io"
+  // OP_RETURN as first output: "Powered by https://saibun.io"
   outputs.push({
     lockingScript: LockingScript.fromHex(OP_RETURN_SCRIPT_HEX),
     satoshis: 0,
