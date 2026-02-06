@@ -324,6 +324,11 @@ export function TransactionBuilder({
                     <p className="font-mono font-medium">
                       {txDetails.size.toLocaleString()} bytes
                     </p>
+                    {txDetails.estimatedSize && (
+                      <p className="text-[9px] text-muted-foreground/70 mt-0.5">
+                        est: {txDetails.estimatedSize.toLocaleString()}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <p className="text-muted-foreground">Fee</p>

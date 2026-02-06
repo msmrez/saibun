@@ -14,6 +14,7 @@ import {
   isValidAddress,
   satoshisToBsv,
   calculateFee,
+  estimateTransactionSize,
   deriveAddressesFromXpub,
   parseRawTransactionHex,
 } from "@/lib/bsv";
@@ -107,6 +108,11 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
     1
   );
   const estimatedChange = totalInput - totalOutput - estimatedFee;
+  const estimatedSize = estimateTransactionSize(
+    localUtxos.length,
+    utxoCount + (estimatedChange > DUST_THRESHOLD ? 1 : 0),
+    1 // OP_RETURN
+  );
 
   const maxUtxos = Math.floor(
     (totalInput - calculateFee(localUtxos.length, 2, feeRate, 1)) /
@@ -557,13 +563,13 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
             <Slider
               value={[feeRate]}
               onValueChange={(v) => setFeeRate(v[0])}
-              min={0.25}
+              min={0.1}
               max={2}
-              step={0.25}
+              step={0.1}
               className="w-full"
             />
             <div className="flex justify-between text-[10px] sm:text-xs text-muted-foreground">
-              <span>0.25</span>
+              <span>0.1</span>
               <span>0.5</span>
               <span>1.0</span>
               <span>2.0</span>
@@ -608,6 +614,18 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
               >
                 {estimatedChange < 0 ? "-" : ""}
                 {Math.abs(estimatedChange).toLocaleString()} sats
+              </p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-[10px] sm:text-xs">Estimated Size</p>
+              <p className="font-mono font-medium text-xs sm:text-sm">
+                ~{estimatedSize.toLocaleString()} bytes
+              </p>
+            </div>
+            <div>
+              <p className="text-muted-foreground text-[10px] sm:text-xs">Fee Rate</p>
+              <p className="font-mono font-medium text-xs sm:text-sm">
+                {feeRate} sat/byte
               </p>
             </div>
           </div>

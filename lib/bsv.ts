@@ -12,7 +12,7 @@ import {
 
 const P2PKH_INPUT_SIZE_BYTES = 148;
 const P2PKH_OUTPUT_SIZE_BYTES = 34;
-const OP_RETURN_OUTPUT_SIZE_BYTES = 44; // OP_0 OP_RETURN + ~31-byte payload
+const OP_RETURN_OUTPUT_SIZE_BYTES = 40; // 8 (satoshis) + 1 (varint) + 31 (OP_0 OP_RETURN + 28-byte payload)
 const TX_OVERHEAD_BYTES = 10;
 
 const OP_RETURN_NOTE = "Powered by https://saibun.io";
@@ -77,6 +77,7 @@ export interface TransactionDetails {
   fee: number;
   feeRate: number;
   size: number;
+  estimatedSize: number;
 }
 
 export function generateKeyPair(): {
@@ -234,12 +235,31 @@ export async function buildSplitTransaction(
 
   const totalInput = utxos.reduce((sum, utxo) => sum + utxo.satoshis, 0);
   const totalRequiredOutput = config.outputCount * config.satoshisPerOutput;
-  const estimatedFee = calculateFee(
+  
+  // First estimate fee WITHOUT change output
+  let estimatedFee = calculateFee(
     utxos.length,
-    config.outputCount + 1,
+    config.outputCount, // No change output yet
     config.feeRate,
-    1
+    1 // OP_RETURN
   );
+  
+  // Calculate potential change
+  let change = totalInput - totalRequiredOutput - estimatedFee;
+  const dustThreshold = 1;
+  const hasChange = change > dustThreshold;
+  
+  // If change exists, recalculate fee WITH change output for accuracy
+  if (hasChange) {
+    estimatedFee = calculateFee(
+      utxos.length,
+      config.outputCount + 1, // Include change output
+      config.feeRate,
+      1 // OP_RETURN
+    );
+    // Recalculate change with accurate fee
+    change = totalInput - totalRequiredOutput - estimatedFee;
+  }
 
   if (totalInput < totalRequiredOutput + estimatedFee) {
     throw new Error(
@@ -311,9 +331,7 @@ export async function buildSplitTransaction(
   }
 
   const totalOutputSatoshis = config.outputCount * config.satoshisPerOutput;
-  const change = totalInput - totalOutputSatoshis - estimatedFee;
-  const dustThreshold = 1;
-  const hasChange = change > dustThreshold;
+  // change and hasChange are already calculated above
   const changeAddress = config.changeAddress?.trim()
     ? config.changeAddress.trim()
     : sourceAddress;
@@ -349,6 +367,13 @@ export async function buildSplitTransaction(
   const actualTotalOutput = outputDetails.reduce((sum, o) => sum + o.satoshis, 0);
   const actualFee = totalInput - actualTotalOutput;
   const actualFeeRate = actualFee / actualSize;
+  
+  // Calculate estimated size (same logic used for fee estimation)
+  const estimatedSize = estimateTransactionSize(
+    utxos.length,
+    config.outputCount + (hasChange ? 1 : 0),
+    1 // OP_RETURN
+  );
 
   return {
     txid,
@@ -364,6 +389,7 @@ export async function buildSplitTransaction(
     fee: actualFee,
     feeRate: Math.round(actualFeeRate * 100) / 100,
     size: actualSize,
+    estimatedSize,
   };
 }
 
