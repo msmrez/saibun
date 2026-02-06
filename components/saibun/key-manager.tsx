@@ -184,8 +184,8 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
                         />
                       </button>
                       <div className="w-full">
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 text-[10px] sm:text-xs bg-muted px-2 sm:px-3 py-1.5 sm:py-2 rounded font-mono break-all">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <code className="flex-1 min-w-0 text-[10px] sm:text-xs bg-muted px-2 sm:px-3 py-1.5 sm:py-2 rounded font-mono break-all overflow-hidden">
                             {address}
                           </code>
                           <Button
@@ -235,8 +235,8 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
                         )}
                       </div>
                       <div className="w-full space-y-2">
-                        <div className="flex items-center gap-2">
-                          <code className="flex-1 text-[10px] sm:text-xs bg-muted px-2 sm:px-3 py-1.5 sm:py-2 rounded font-mono break-all">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <code className="flex-1 min-w-0 text-[10px] sm:text-xs bg-muted px-2 sm:px-3 py-1.5 sm:py-2 rounded font-mono break-all overflow-hidden">
                             {showPrivateKey
                               ? wif
                               : "••••••••••••••••••••••••••••••••••••••••••••••••••••"}
