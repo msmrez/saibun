@@ -248,7 +248,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
       startIndex: mode === "xpub" ? startIndex : undefined,
       // Don't pass derivedAddresses - let buildSplitTransaction derive fresh
       // This avoids storing large arrays and ensures fresh derivation
-      derivedAddresses: undefined,
+      // Omit the property entirely so buildSplitTransaction uses xpub derivation
       changeAddress: changeAddress.trim() || undefined,
     };
 

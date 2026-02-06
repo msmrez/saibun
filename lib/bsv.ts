@@ -270,15 +270,20 @@ export async function buildSplitTransaction(
   let recipientAddresses: string[] = [];
   if (config.recipientMode === "single" && config.recipientAddress) {
     recipientAddresses = Array(config.outputCount).fill(config.recipientAddress);
-  } else if (config.recipientMode === "xpub" && config.derivedAddresses) {
-    recipientAddresses = config.derivedAddresses;
-  } else if (config.recipientMode === "xpub" && config.xpub) {
-    recipientAddresses = deriveAddressesFromXpub(
-      config.xpub,
-      config.derivationPath || "m/44'/145'/0'/0",
-      config.startIndex || 0,
-      config.outputCount
-    );
+  } else if (config.recipientMode === "xpub") {
+    // Prefer derivedAddresses if provided, otherwise derive from xpub
+    if (config.derivedAddresses && config.derivedAddresses.length > 0) {
+      recipientAddresses = config.derivedAddresses;
+    } else if (config.xpub) {
+      recipientAddresses = deriveAddressesFromXpub(
+        config.xpub,
+        config.derivationPath || "m/44'/145'/0'/0",
+        config.startIndex || 0,
+        config.outputCount
+      );
+    } else {
+      throw new Error("Invalid xPub configuration: xpub is required");
+    }
   } else {
     throw new Error("Invalid recipient configuration");
   }
