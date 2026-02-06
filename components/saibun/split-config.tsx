@@ -112,7 +112,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
     (totalInput - calculateFee(localUtxos.length, 2, feeRate, 1)) /
       DUST_THRESHOLD
   );
-  const MAX_OUTPUTS = 20000;
+  const MAX_OUTPUTS = 50000;
   const suggestedUtxoCount = Math.min(
     Math.floor((totalInput - estimatedFee) / satoshisPerUtxo),
     MAX_OUTPUTS
@@ -183,6 +183,11 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
 
     if (estimatedChange < -1) {
       setError("Insufficient funds for this configuration");
+      return;
+    }
+
+    if (utxoCount < 2) {
+      setError("Number of UTXOs must be at least 2");
       return;
     }
 
@@ -482,19 +487,19 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
                   variant="outline"
                   size="icon"
                   className="h-10 w-10 bg-transparent"
-                  onClick={() => setUtxoCount(Math.max(1, utxoCount - 1))}
+                  onClick={() => setUtxoCount(Math.max(2, utxoCount - 1))}
                   aria-label="Decrease number of UTXOs"
                 >
                   <Minus className="h-3 w-3" />
                 </Button>
                 <Input
                   type="number"
-                  min={1}
+                  min={2}
                   max={MAX_OUTPUTS}
                   value={utxoCount}
                   onChange={(e) =>
                     setUtxoCount(
-                      Math.max(1, Math.min(MAX_OUTPUTS, parseInt(e.target.value) || 1))
+                      Math.max(2, Math.min(MAX_OUTPUTS, parseInt(e.target.value) || 2))
                     )
                   }
                   className="w-20 text-center text-xs sm:text-sm"
