@@ -31,6 +31,7 @@ import {
   FileCode,
   CheckCircle,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 interface SplitConfigProps {
@@ -54,6 +55,7 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
   const [addressValid, setAddressValid] = useState(false);
   const [xpubValid, setXpubValid] = useState(false);
   const [derivedAddresses, setDerivedAddresses] = useState<string[]>([]);
+  const [derivingAddresses, setDerivingAddresses] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [changeAddress, setChangeAddress] = useState("");
   const [localUtxos, setLocalUtxos] = useState<BitailsUtxo[]>(utxos);
@@ -82,21 +84,49 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
   }, [singleAddress]);
 
   useEffect(() => {
-    if (xpub.trim() && mode === "xpub") {
-      try {
-        const addresses = deriveAddressesFromXpub(xpub.trim(), derivationPath, startIndex, utxoCount);
-        setDerivedAddresses(addresses);
-        setXpubValid(true);
-        setError("");
-      } catch (err) {
-        setXpubValid(false);
-        setDerivedAddresses([]);
-        setError(err instanceof Error ? err.message : "Invalid xPub");
-      }
-    } else {
+    if (!xpub.trim() || mode !== "xpub") {
       setXpubValid(false);
       setDerivedAddresses([]);
+      setDerivingAddresses(false);
+      return;
     }
+
+    // Debounce: wait 400ms after user stops changing values
+    const timeoutId = setTimeout(() => {
+      setDerivingAddresses(true);
+      
+      // Use requestAnimationFrame to keep UI responsive
+      requestAnimationFrame(() => {
+        try {
+          // For preview, only derive a small subset (10 addresses)
+          // This keeps UI responsive even for large utxoCount values
+          const PREVIEW_COUNT = 10;
+          const previewCount = Math.min(utxoCount, PREVIEW_COUNT);
+          
+          // Derive preview addresses
+          const previewAddresses = deriveAddressesFromXpub(
+            xpub.trim(),
+            derivationPath,
+            startIndex,
+            previewCount
+          );
+          
+          setDerivedAddresses(previewAddresses);
+          setXpubValid(true);
+          setError("");
+          setDerivingAddresses(false);
+        } catch (err) {
+          setXpubValid(false);
+          setDerivedAddresses([]);
+          setError(err instanceof Error ? err.message : "Invalid xPub");
+          setDerivingAddresses(false);
+        }
+      });
+    }, 400);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
   }, [xpub, derivationPath, startIndex, utxoCount, mode]);
 
   const totalInput = localUtxos.reduce((sum, u) => sum + u.satoshis, 0);
@@ -216,7 +246,9 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
       xpub: mode === "xpub" ? xpub.trim() : undefined,
       derivationPath: mode === "xpub" ? derivationPath : undefined,
       startIndex: mode === "xpub" ? startIndex : undefined,
-      derivedAddresses: mode === "xpub" ? derivedAddresses : undefined,
+      // Don't pass derivedAddresses - let buildSplitTransaction derive fresh
+      // This avoids storing large arrays and ensures fresh derivation
+      derivedAddresses: undefined,
       changeAddress: changeAddress.trim() || undefined,
     };
 
@@ -456,9 +488,22 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
             </div>
 
             {/* Preview derived addresses */}
-            {xpubValid && derivedAddresses.length > 0 && (
+            {derivingAddresses && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                <span>Deriving addresses...</span>
+              </div>
+            )}
+            {xpubValid && derivedAddresses.length > 0 && !derivingAddresses && (
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Preview (first 3 addresses)</Label>
+                <Label className="text-xs font-medium">
+                  Preview (first {Math.min(derivedAddresses.length, 3)} addresses)
+                  {utxoCount > derivedAddresses.length && (
+                    <span className="text-muted-foreground/70 ml-1">
+                      of {utxoCount.toLocaleString()}
+                    </span>
+                  )}
+                </Label>
                 <div className="space-y-1.5 font-mono text-[10px] text-muted-foreground bg-muted/30 p-3 rounded-lg">
                   {derivedAddresses.slice(0, 3).map((addr, i) => (
                     <p key={addr} className="flex gap-2">
@@ -466,8 +511,15 @@ export function SplitConfig({ utxos, sourceAddress, onConfigReady }: SplitConfig
                       <span className="truncate">{addr}</span>
                     </p>
                   ))}
-                  {derivedAddresses.length > 3 && (
-                    <p className="text-muted-foreground/70">...and {derivedAddresses.length - 3} more</p>
+                  {utxoCount > derivedAddresses.length && (
+                    <p className="text-muted-foreground/70">
+                      ...and {utxoCount - derivedAddresses.length} more will be derived when building
+                    </p>
+                  )}
+                  {derivedAddresses.length > 3 && utxoCount <= derivedAddresses.length && (
+                    <p className="text-muted-foreground/70">
+                      ...and {derivedAddresses.length - 3} more
+                    </p>
                   )}
                 </div>
               </div>
