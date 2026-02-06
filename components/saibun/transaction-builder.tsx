@@ -72,10 +72,15 @@ export function TransactionBuilder({
       );
       setTxDetails(result);
     } catch (err) {
-      console.error("[v0] Transaction build error:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to build transaction"
-      );
+      const message =
+        err instanceof Error ? err.message : "Failed to build transaction";
+      console.error("[Saibun] Transaction build error:", err);
+      setError(message);
+      toast({
+        title: "Build failed",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setBuilding(false);
     }

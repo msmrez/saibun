@@ -189,6 +189,33 @@ export function deriveAddressesFromXpub(
   }
 }
 
+const DERIVE_CHUNK_SIZE = 500;
+
+/** Async derivation that yields to main thread between chunks so UI stays responsive. */
+export async function deriveAddressesFromXpubAsync(
+  xpub: string,
+  basePath: string,
+  startIndex: number,
+  count: number
+): Promise<string[]> {
+  const result: string[] = [];
+  for (let offset = 0; offset < count; offset += DERIVE_CHUNK_SIZE) {
+    const chunkCount = Math.min(DERIVE_CHUNK_SIZE, count - offset);
+    const chunk = deriveAddressesFromXpub(
+      xpub,
+      basePath,
+      startIndex + offset,
+      chunkCount
+    );
+    result.push(...chunk);
+    // Yield to main thread so UI can update (e.g. "Building..." spinner)
+    if (offset + chunkCount < count) {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+  }
+  return result;
+}
+
 export function estimateTransactionSize(
   inputCount: number,
   p2pkhOutputCount: number,
@@ -271,11 +298,11 @@ export async function buildSplitTransaction(
   if (config.recipientMode === "single" && config.recipientAddress) {
     recipientAddresses = Array(config.outputCount).fill(config.recipientAddress);
   } else if (config.recipientMode === "xpub") {
-    // Prefer derivedAddresses if provided, otherwise derive from xpub
+    // Prefer derivedAddresses if provided, otherwise derive from xpub (async for large counts)
     if (config.derivedAddresses && config.derivedAddresses.length > 0) {
       recipientAddresses = config.derivedAddresses;
     } else if (config.xpub) {
-      recipientAddresses = deriveAddressesFromXpub(
+      recipientAddresses = await deriveAddressesFromXpubAsync(
         config.xpub,
         config.derivationPath || "m/44'/145'/0'/0",
         config.startIndex || 0,
