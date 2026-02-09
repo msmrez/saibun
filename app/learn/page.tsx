@@ -248,7 +248,7 @@ export default function LearnPage() {
             <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">
-                  Ready to split UTXOs with confidence?
+                  Ready to split UTXOs?
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Start with a small test amount, review the transaction, then broadcast.
