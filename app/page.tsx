@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { BitailsUtxo, SplitConfig as SplitConfigType } from "@/lib/bsv";
-import { CheckCircle, Heart, Copy, ExternalLink, RotateCcw, Mail, BookOpen } from "lucide-react";
+import { CheckCircle, Heart, Copy, ExternalLink, RotateCcw, Mail, BookOpen, Github } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -511,6 +511,15 @@ export default function SaibunPage() {
                 <span className="absolute left-0 bottom-full mb-2 px-2 py-1 text-xs bg-popover border border-border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
                   {CONTACT_EMAIL}
                 </span>
+              </a>
+              <a
+                href="https://github.com/msmrez/saibun"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <Github className="h-3 w-3" />
+                GitHub
               </a>
               <a
                 href="https://docs.bitails.io"
