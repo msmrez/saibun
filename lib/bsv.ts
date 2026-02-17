@@ -426,21 +426,37 @@ export async function buildSplitTransaction(
 }
 
 export async function broadcastTransaction(hex: string): Promise<string> {
+  // Bitails API: POST body with "raw" key, returns { "txid": "..." }
   const response = await fetch("https://api.bitails.io/tx/broadcast", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ raw: hex }),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Broadcast failed: ${errorText}`);
+  const text = await response.text();
+  let result: Record<string, unknown>;
+  try {
+    result = JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    if (!response.ok) throw new Error(`Broadcast failed: ${text || response.statusText}`);
+    throw new Error("Broadcast failed: invalid response from server.");
   }
 
-  const result = await response.json();
-  return result.txid || result.txId || result.hash;
+  if (!response.ok) {
+    const msg = (result.error ?? result.message ?? result.msg ?? text) as string | undefined;
+    throw new Error(msg ? `Broadcast failed: ${msg}` : `Broadcast failed: ${response.status} ${response.statusText}`);
+  }
+
+  const err = result.error ?? result.message ?? result.msg;
+  if (err != null && typeof err === "string" && err.toLowerCase().includes("reject")) {
+    throw new Error(`Broadcast rejected: ${err}`);
+  }
+
+  const txid = result.txid ?? result.txId ?? result.hash ?? result.id;
+  if (txid != null && typeof txid === "string" && txid.length > 0) return txid;
+  throw new Error(
+    "Broadcast response did not include a transaction ID. The transaction may not have been broadcast."
+  );
 }
 
 export async function fetchUtxos(address: string): Promise<BitailsUnspentResponse> {
@@ -453,6 +469,32 @@ export async function fetchUtxos(address: string): Promise<BitailsUnspentRespons
   }
 
   return response.json();
+}
+
+/**
+ * Look up which transaction spent a specific output (txid:vout).
+ * Uses Bitails GET /tx/{txid} — the response includes outputs[].spentIn
+ * when an output has been spent. Returns null if unspent or on any error.
+ */
+export async function fetchSpendingTx(
+  txid: string,
+  vout: number
+): Promise<{ spendTxid: string; vin: number } | null> {
+  try {
+    const res = await fetch(`https://api.bitails.io/tx/${txid}`);
+    if (!res.ok) return null;
+    const data = (await res.json()) as {
+      outputs?: Array<{
+        index: number;
+        spentIn?: { txid: string; inputIndex: number } | null;
+      }>;
+    };
+    const output = data.outputs?.find((o) => o.index === vout);
+    if (!output?.spentIn?.txid) return null;
+    return { spendTxid: output.spentIn.txid, vin: output.spentIn.inputIndex ?? 0 };
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchRawTransaction(txid: string): Promise<string> {

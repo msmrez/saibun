@@ -7,7 +7,8 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "generate-icons": "node scripts/generate-icons.mjs"
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "test:key": "npx tsx scripts/test-with-key.ts"
   },
   "dependencies": {
     "@bsv/sdk": "1.10.3",

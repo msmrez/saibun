@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import type { BitailsUtxo, SplitConfig as SplitConfigType } from "@/lib/bsv";
-import { CheckCircle, Heart, Copy, ExternalLink, RotateCcw, Mail, BookOpen, Github } from "lucide-react";
+import { CheckCircle, Heart, Copy, ExternalLink, RotateCcw, Mail, BookOpen, Github, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -384,6 +384,12 @@ export default function SaibunPage() {
                   <span className="hidden sm:inline">Learn</span>
                 </Link>
               </Button>
+              <Button asChild variant="outline" size="sm" className="gap-1.5 border-border bg-transparent text-foreground hover:bg-secondary hover:text-foreground">
+                <Link href="/scripts">
+                  <Code2 className="h-3.5 w-3.5 text-primary" />
+                  <span className="hidden sm:inline">Script Lab</span>
+                </Link>
+              </Button>
               {completedSteps.length > 0 && (
                 <Button
                   variant="outline"
@@ -467,7 +473,7 @@ export default function SaibunPage() {
           )}
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-card border border-border rounded-lg p-4">
             <h3 className="text-sm font-medium text-foreground mb-1">
               Client-Side Only
@@ -486,6 +492,16 @@ export default function SaibunPage() {
               without network access.
             </p>
           </div>
+          <Link href="/scripts" className="bg-card border border-border rounded-lg p-4 hover:border-primary/30 transition-colors">
+            <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-1.5">
+              <Code2 className="h-3.5 w-3.5 text-primary" />
+              Script Lab
+            </h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Build, test, and broadcast custom Bitcoin scripts — hash puzzles,
+              R-puzzles, timelocks, and more.
+            </p>
+          </Link>
         </div>
       </main>
 
@@ -500,6 +516,13 @@ export default function SaibunPage() {
               >
                 <BookOpen className="h-3 w-3" />
                 Learn
+              </Link>
+              <Link
+                href="/scripts"
+                className="hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <Code2 className="h-3 w-3" />
+                Scripts
               </Link>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}

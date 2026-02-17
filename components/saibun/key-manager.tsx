@@ -24,6 +24,8 @@ import {
   AlertCircle,
   CheckCircle,
   Sparkles,
+  Download,
+  ShieldCheck,
 } from "lucide-react";
 
 interface KeyManagerProps {
@@ -40,6 +42,7 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
   const [hasGenerated, setHasGenerated] = useState(false);
   const [hasImported, setHasImported] = useState(false);
   const [qrPreview, setQrPreview] = useState<null | "address" | "wif">(null);
+  const [keyAcknowledged, setKeyAcknowledged] = useState(false);
   const { toast } = useToast();
 
   const generateNewKey = useCallback(() => {
@@ -49,10 +52,17 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
       setAddress(keyPair.address);
       setHasGenerated(true);
       setHasImported(false);
-      onKeyReady(keyPair.privateKeyWif, keyPair.address);
+      // Do NOT call onKeyReady yet — wait for the user to acknowledge the backup.
+      setKeyAcknowledged(false);
     } catch (err) {
       console.error("[v0] Key generation error:", err);
     }
+  }, []);
+
+  /** Called when the user copies, downloads, or consciously skips the backup step. */
+  const acknowledgeKey = useCallback((wifToAck: string, addrToAck: string) => {
+    setKeyAcknowledged(true);
+    onKeyReady(wifToAck, addrToAck);
   }, [onKeyReady]);
 
   const handleImport = () => {
@@ -81,6 +91,33 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
       description: `${label} copied to clipboard.`,
     });
   };
+
+  const downloadKeyBackup = useCallback(() => {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const content = [
+      "Saibun — Private Key Backup",
+      "============================",
+      `Generated : ${new Date().toLocaleString()}`,
+      "",
+      `Address   : ${address}`,
+      `Private Key (WIF): ${wif}`,
+      "",
+      "KEEP THIS FILE SAFE.",
+      "Never share your private key with anyone.",
+      "Anyone who has it can spend funds from this address.",
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `saibun-key-${timestamp}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({ title: "Downloaded", description: "Key backup saved as .txt file." });
+    acknowledgeKey(wif, address);
+  }, [wif, address, toast, acknowledgeKey]);
 
   const handleModeChange = (newMode: string) => {
     setMode(newMode as "generate" | "import");
@@ -270,16 +307,66 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
                 </Card>
               </div>
 
-              <div className="flex justify-center">
-                <Button
-                  variant="outline"
-                  onClick={generateNewKey}
-                  className="gap-2 bg-transparent text-xs sm:text-sm"
-                >
-                  <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  Generate New Key
-                </Button>
-              </div>
+              {/* Backup checkpoint */}
+              {!keyAcknowledged ? (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-foreground">Back up your private key before continuing</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        This is the only key that controls funds sent to this address.
+                        It is not stored anywhere — if you lose it, funds are gone permanently.
+                        Copy it, download it, or store it somewhere safe now.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      size="sm"
+                      className="gap-1.5"
+                      onClick={async () => {
+                        await copyToClipboard(wif, "Private key (WIF)");
+                        acknowledgeKey(wif, address);
+                      }}
+                    >
+                      <Copy className="h-3.5 w-3.5" />
+                      Copy Private Key
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 bg-transparent"
+                      onClick={downloadKeyBackup}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      Download .txt Backup
+                    </Button>
+                    <button
+                      type="button"
+                      onClick={() => acknowledgeKey(wif, address)}
+                      className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors px-1"
+                    >
+                      I already saved it, skip
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-lg border border-emerald-500/25 bg-emerald-500/5 p-3 flex items-center gap-3">
+                  <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <p className="text-sm text-foreground">Key backed up — you&apos;re ready to continue.</p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={generateNewKey}
+                    className="gap-1.5 ml-auto text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    Regenerate
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </TabsContent>

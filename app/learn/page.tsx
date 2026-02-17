@@ -10,7 +10,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ArrowRight, Shield, WifiOff, Split, Info } from "lucide-react";
+import { ArrowRight, Shield, WifiOff, Split, Info, Code2 } from "lucide-react";
 
 export default function LearnPage() {
   return (
@@ -25,6 +25,12 @@ export default function LearnPage() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Button asChild variant="outline" size="sm" className="gap-1.5 bg-transparent">
+              <Link href="/scripts">
+                <Code2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Script Lab</span>
+              </Link>
+            </Button>
             <Button asChild variant="outline" className="bg-transparent">
               <Link href="/">
                 Open Splitter <ArrowRight className="h-4 w-4 ml-2" />
@@ -243,7 +249,7 @@ export default function LearnPage() {
           </div>
         </section>
 
-        <section>
+        <section className="space-y-4">
           <Card className="border-border/50 bg-muted/20">
             <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
@@ -257,6 +263,24 @@ export default function LearnPage() {
               <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link href="/">
                   Open Saibun <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+          <Card className="border-border/50 bg-muted/20">
+            <CardContent className="p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                  <Code2 className="h-4 w-4 text-primary" />
+                  Want to learn Bitcoin Script?
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  The Script Guide covers 30 templates &mdash; hash puzzles, time locks, atomic swaps, and more &mdash; with opcode-by-opcode walkthroughs.
+                </p>
+              </div>
+              <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                <Link href="/scripts/learn">
+                  Script Guide <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </Button>
             </CardContent>
