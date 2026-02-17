@@ -81,13 +81,13 @@ import { isValidWif, isValidAddress, importFromWif, fetchUtxosWithRawTx, fetchSp
 type HashAlgo = "SHA256" | "HASH160" | "HASH256" | "RIPEMD160" | "SHA1";
 
 // Stable category order for Transaction Builder (most-used first). Only include categories that have builder templates.
-const BUILDER_CATEGORY_ORDER = ["Puzzle", "R-Puzzle", "Basic", "Arithmetic", "Control Flow", "Stack", "Time Lock", "Escrow", "Standard", "Data Manipulation", "Data", "Advanced", "Combination"];
+const BUILDER_CATEGORY_ORDER = ["Lock Funds", "Basic", "Control Flow", "Stack", "Time Lock", "Escrow & Swaps", "Standard Payments", "Data Manipulation", "Data Embedding", "Covenants"];
 const BUILDER_CATEGORIES = BUILDER_CATEGORY_ORDER.filter(cat =>
   TEMPLATES.some(t => t.category === cat && t.id !== "custom" && !t.educational)
 );
 
 // Stable category order for Script Lab template list (consistent menu order)
-const LAB_CATEGORY_ORDER = ["Basic", "Puzzle", "R-Puzzle", "Arithmetic", "Control Flow", "Stack", "Time Lock", "Escrow", "Standard", "Data Manipulation", "Data", "Advanced", "Combination", "Custom"];
+const LAB_CATEGORY_ORDER = ["Basic", "Lock Funds", "Control Flow", "Stack", "Time Lock", "Escrow & Swaps", "Standard Payments", "Data Manipulation", "Data Embedding", "Covenants", "Custom"];
 
 export default function ScriptsPage() {
   const { toast } = useToast();
@@ -128,7 +128,7 @@ export default function ScriptsPage() {
   const [loadingUtxo, setLoadingUtxo] = useState(false);
   const [lockAddress, setLockAddress] = useState("");
   const [builderLockTemplate, setBuilderLockTemplate] = useState<string | null>("hash-sha256");
-  const [builderLockCategory, setBuilderLockCategory] = useState("Puzzle");
+  const [builderLockCategory, setBuilderLockCategory] = useState("Lock Funds");
   
   // Lock: Hash Puzzle params
   const [lockHashPreimage, setLockHashPreimage] = useState("");
@@ -152,7 +152,7 @@ export default function ScriptsPage() {
   const [unlockBroadcastSuccess, setUnlockBroadcastSuccess] = useState(false);
   const [unlockBroadcastTxid, setUnlockBroadcastTxid] = useState("");
   const [builderUnlockTemplate, setBuilderUnlockTemplate] = useState<string | null>("hash-sha256");
-  const [builderUnlockCategory, setBuilderUnlockCategory] = useState("Puzzle");
+  const [builderUnlockCategory, setBuilderUnlockCategory] = useState("Lock Funds");
   
   // Unlock: Hash Puzzle params
   const [unlockHashPreimage, setUnlockHashPreimage] = useState("");

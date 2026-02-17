@@ -18,22 +18,23 @@ const FEE_RATE = 0.5;
 const LOCK_AMOUNT = 700; // satoshis per lock output
 const DELAY_MS = 500; // delay between broadcasts to avoid rate limits
 
-// Templates that cannot be tested on mainnet
+// Templates that cannot be tested on mainnet (IDs must match lib/script-playground.ts TEMPLATES)
 const SKIP_IDS = new Set([
-  "always-fail",       // fails by design
-  "anyone-can-spend",  // empty unlock not supported + risky
-  "r-puzzle-raw",      // needs special RPuzzle handler (tested separately below)
-  "nlock-time",        // educational (TX-level feature)
-  "nsequence",         // educational (TX-level feature)
-  "htlc-redeem",       // requires OP_CHECKSIG
-  "htlc-refund",       // requires OP_CHECKSIG
-  "escrow-release",    // requires OP_CHECKSIG
-  "p2pkh",             // requires OP_CHECKSIG
-  "p2pk",              // requires OP_CHECKSIG
-  "multisig-1of2",     // requires OP_CHECKSIG
-  "op-return",         // unspendable
-  "op-return-multi",   // unspendable
-  "op-push-tx",        // educational + requires TX context
+  "always-fail",         // fails by design
+  "anyone-can-spend",    // empty unlock not supported + risky
+  "rpuzzle-raw",         // needs special RPuzzle handler (tested separately below)
+  "nlocktime-intro",     // educational (TX-level feature)
+  "nlocktime-sequence",  // educational (TX-level feature)
+  "htlc-redeem",         // requires OP_CHECKSIG
+  "htlc-refund",         // requires OP_CHECKSIG
+  "escrow-2of2",        // requires OP_CHECKSIG
+  "p2pkh-ref",          // requires OP_CHECKSIG
+  "p2pk-ref",           // requires OP_CHECKSIG
+  "bare-multisig-ref",   // requires OP_CHECKSIG
+  "op-return",          // unspendable
+  "op-return-multi",    // unspendable
+  "op-push-tx",         // educational + requires TX context
+  "custom",              // no script
 ]);
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -249,9 +250,9 @@ async function main() {
   console.log("  R-Puzzle Test (special handler)");
 
   const rpuzzleResult: TestResult = {
-    id: "r-puzzle-raw",
-    name: "R-Puzzle (raw)",
-    category: "R-Puzzle",
+    id: "rpuzzle-raw",
+    name: "R-Puzzle (Raw)",
+    category: "Lock Funds",
     status: "FAIL",
   };
 

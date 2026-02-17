@@ -59,17 +59,22 @@ function CategoryIcon({ cat }: { cat: string }) {
   switch (cat) {
     case "Basic": return <Zap className={cls} />;
     case "Puzzle": return <Hash className={cls} />;
+    case "Lock Funds": return <Hash className={cls} />;
     case "Arithmetic": return <Calculator className={cls} />;
     case "R-Puzzle": return <Lock className={cls} />;
     case "Control Flow": return <GitBranch className={cls} />;
     case "Stack": return <Layers className={cls} />;
     case "Time Lock": return <Clock className={cls} />;
     case "Escrow": return <Shield className={cls} />;
+    case "Escrow & Swaps": return <Shield className={cls} />;
     case "Standard": return <Lock className={cls} />;
+    case "Standard Payments": return <Lock className={cls} />;
     case "Data": return <Database className={cls} />;
+    case "Data Embedding": return <Database className={cls} />;
     case "Data Manipulation": return <Layers className={cls} />;
     case "Combination": return <Zap className={cls} />;
     case "Advanced": return <Shield className={cls} />;
+    case "Covenants": return <Shield className={cls} />;
     default: return <Code2 className={cls} />;
   }
 }
@@ -208,7 +213,7 @@ export default function ScriptGuidePage() {
               <p className="text-sm font-medium text-foreground mb-1">Stack-based</p>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Every opcode either pushes data onto the stack, pops data off it, or does both.
-                OP_ADD pops two numbers, adds them, pushes the result.
+                For example, OP_ADD pops two numbers, adds them, pushes the result.
               </p>
             </div>
             <div className="bg-card border border-border rounded-lg p-3">
@@ -325,16 +330,16 @@ export default function ScriptGuidePage() {
         <Separator />
 
         {/* ================================================================ */}
-        {/*  PUZZLE                                                          */}
+        {/*  LOCK FUNDS                                                      */}
         {/* ================================================================ */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <CategoryIcon cat="Puzzle" />
-            <h2 className="text-lg font-medium text-foreground">Puzzle</h2>
-            <Badge variant="outline" className="text-xs">6 templates</Badge>
+            <CategoryIcon cat="Lock Funds" />
+            <h2 className="text-lg font-medium text-foreground">Lock Funds</h2>
+            <Badge variant="outline" className="text-xs">9 templates</Badge>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Puzzle scripts lock funds to a mathematical or cryptographic condition. Anyone who
+            Lock funds to a mathematical or cryptographic condition. Anyone who
             can solve the puzzle can spend the coins &mdash; no private key required. Hash puzzles
             are the foundation of atomic swaps, HTLCs, and most DeFi primitives.
           </p>
@@ -580,26 +585,7 @@ export default function ScriptGuidePage() {
                 </Tip>
               </AccordionContent>
             </AccordionItem>
-          </Accordion>
-        </section>
 
-        <Separator />
-
-        {/* ================================================================ */}
-        {/*  ARITHMETIC                                                      */}
-        {/* ================================================================ */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CategoryIcon cat="Arithmetic" />
-            <h2 className="text-lg font-medium text-foreground">Arithmetic</h2>
-            <Badge variant="outline" className="text-xs">2 templates</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Bitcoin Script supports integer arithmetic natively. BSV restored OP_MUL, OP_DIV, OP_MOD
-            and removed the arbitrary 32-bit limit, enabling complex calculations directly on-chain.
-          </p>
-
-          <Accordion type="multiple" className="space-y-2">
             {/* Range Check */}
             <AccordionItem value="range-check" className="border border-border rounded-lg px-4">
               <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
@@ -675,27 +661,8 @@ export default function ScriptGuidePage() {
                 </Tip>
               </AccordionContent>
             </AccordionItem>
-          </Accordion>
-        </section>
 
-        <Separator />
-
-        {/* ================================================================ */}
-        {/*  R-PUZZLE                                                        */}
-        {/* ================================================================ */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CategoryIcon cat="R-Puzzle" />
-            <h2 className="text-lg font-medium text-foreground">R-Puzzle</h2>
-            <Badge variant="outline" className="text-xs">1 template</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            R-Puzzles are one of BSV&apos;s most unique script patterns. They lock funds to a
-            specific ECDSA nonce (K value) rather than a specific key. Anyone who knows K can
-            spend, regardless of which private key they use.
-          </p>
-
-          <Accordion type="multiple" className="space-y-2">
+            {/* R-Puzzle (Raw) */}
             <AccordionItem value="rpuzzle-raw" className="border border-border rounded-lg px-4">
               <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
                 R-Puzzle (Raw)
@@ -1126,12 +1093,12 @@ export default function ScriptGuidePage() {
         {/* ================================================================ */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <CategoryIcon cat="Escrow" />
-            <h2 className="text-lg font-medium text-foreground">Escrow</h2>
-            <Badge variant="outline" className="text-xs">3 templates</Badge>
+            <CategoryIcon cat="Escrow & Swaps" />
+            <h2 className="text-lg font-medium text-foreground">Escrow & Swaps</h2>
+            <Badge variant="outline" className="text-xs">5 templates</Badge>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Escrow patterns combine hash puzzles, multisig, and transaction-level timelocks to
+            Escrow and swap patterns combine hash puzzles, multisig, and transaction-level timelocks to
             create trustless agreements. HTLCs (Hash Time-Locked Contracts) are the foundation
             of atomic swaps. On BSV, the &quot;time-locked&quot; part uses nLockTime at the transaction
             level, while the script handles the hash puzzle and branching logic.
@@ -1265,6 +1232,82 @@ export default function ScriptGuidePage() {
                 </Warning>
               </AccordionContent>
             </AccordionItem>
+
+            {/* Conditional Hash (SHA256 or HASH160) */}
+            <AccordionItem value="conditional-hash" className="border border-border rounded-lg px-4">
+              <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
+                Conditional Hash (SHA256 or HASH160)
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 space-y-4">
+                <Concept title="What it does">
+                  An IF/ELSE branch where each path uses a different hash algorithm. Push TRUE to
+                  prove knowledge of the SHA256 preimage, or FALSE for the HASH160 preimage.
+                  Both paths use the same preimage (&quot;hello&quot;) but verify different hash digests.
+                </Concept>
+                <Concept title="Real-world use">
+                  Demonstrates how to create scripts with alternative verification methods. In
+                  practice, this pattern appears in protocols where different parties use different
+                  hash algorithms, or where an upgrade path transitions from one hash function to
+                  another while keeping the same output.
+                </Concept>
+                <ScriptBlock label="Locking Script">
+                  <span className="text-primary">OP_IF</span>{"\n"}
+                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2cf24d...9824</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
+                  <span className="text-primary">OP_ELSE</span>{"\n"}
+                  {"  "}<span className="text-primary">OP_HASH160</span> <span className="text-xs">b6a9c8...7d0f</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
+                  <span className="text-primary">OP_ENDIF</span>
+                </ScriptBlock>
+                <ScriptBlock label="Unlocking Script">
+                  <span className="text-xs">68656c6c6f</span> <span className="text-primary">OP_TRUE</span>
+                  {"\n"}
+                  <span className="text-muted-foreground text-xs">
+                    Push &quot;hello&quot; + TRUE for SHA256 path. Change to FALSE for HASH160 path &mdash;
+                    same preimage satisfies both because the lock commits to both hash digests.
+                  </span>
+                </ScriptBlock>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Dual Hash Path */}
+            <AccordionItem value="hash-dual-path" className="border border-border rounded-lg px-4">
+              <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
+                Dual Hash Path
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 space-y-4">
+                <Concept title="What it does">
+                  Two-path contract: claim with one preimage (IF) or refund with a different
+                  preimage (ELSE). This is the BSV-native HTLC structure &mdash; the script handles
+                  the branching and hash verification, while timing is enforced via nLockTime
+                  at the transaction level.
+                </Concept>
+                <Concept title="Real-world use">
+                  This is the HTLC pattern adapted for BSV. On BTC, the ELSE branch would use
+                  OP_CHECKLOCKTIMEVERIFY to enforce a timeout in script. On BSV, CLTV is disabled,
+                  so the refund TX itself carries a nLockTime value &mdash; miners reject it until
+                  the timeout. The script only needs to verify which hash is provided.
+                </Concept>
+                <ScriptBlock label="Locking Script">
+                  <span className="text-primary">OP_IF</span>{"\n"}
+                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2cf24d...9824</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
+                  <span className="text-primary">OP_ELSE</span>{"\n"}
+                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2bb80d...a25b</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
+                  <span className="text-primary">OP_ENDIF</span>
+                  {"\n\n"}
+                  <span className="text-muted-foreground text-xs">
+                    IF: claim with SHA256(&quot;hello&quot;). ELSE: refund with SHA256(&quot;secret&quot;).
+                    Both paths are fully testable in the playground.
+                  </span>
+                </ScriptBlock>
+                <ScriptBlock label="Unlocking Script (Claim)">
+                  <span className="text-xs">68656c6c6f</span> <span className="text-primary">OP_TRUE</span>
+                  {"\n"}
+                  <span className="text-muted-foreground text-xs">
+                    Claim: push &quot;hello&quot; + TRUE. Refund: push &quot;secret&quot; + FALSE.
+                    On-chain, the refund TX would have nLockTime set to a future block.
+                  </span>
+                </ScriptBlock>
+              </AccordionContent>
+            </AccordionItem>
           </Accordion>
         </section>
 
@@ -1275,8 +1318,8 @@ export default function ScriptGuidePage() {
         {/* ================================================================ */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <CategoryIcon cat="Standard" />
-            <h2 className="text-lg font-medium text-foreground">Standard</h2>
+            <CategoryIcon cat="Standard Payments" />
+            <h2 className="text-lg font-medium text-foreground">Standard Payments</h2>
             <Badge variant="outline" className="text-xs">3 templates</Badge>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -1523,8 +1566,8 @@ export default function ScriptGuidePage() {
         {/* ================================================================ */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <CategoryIcon cat="Data" />
-            <h2 className="text-lg font-medium text-foreground">Data</h2>
+            <CategoryIcon cat="Data Embedding" />
+            <h2 className="text-lg font-medium text-foreground">Data Embedding</h2>
             <Badge variant="outline" className="text-xs">4 templates</Badge>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed">
@@ -1714,102 +1757,6 @@ export default function ScriptGuidePage() {
                   satoshis in unspendable outputs, data is pushed and verified using opcodes.
                   In production, add OP_CHECKSIG to bind the message to a specific authorized sender.
                 </Tip>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </section>
-
-        <Separator />
-
-        {/* ================================================================ */}
-        {/*  COMBINATION                                                     */}
-        {/* ================================================================ */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2">
-            <CategoryIcon cat="Combination" />
-            <h2 className="text-lg font-medium text-foreground">Combination</h2>
-            <Badge variant="outline" className="text-xs">2 templates</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            These templates combine multiple patterns &mdash; conditionals with hash puzzles,
-            time locks with hash verification. Real-world scripts are almost always combinations
-            of simpler primitives. Understanding these helps you compose your own complex scripts.
-          </p>
-
-          <Accordion type="multiple" className="space-y-2">
-            {/* Conditional Hash */}
-            <AccordionItem value="conditional-hash" className="border border-border rounded-lg px-4">
-              <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
-                Conditional Hash (SHA256 or HASH160)
-              </AccordionTrigger>
-              <AccordionContent className="pb-4 space-y-4">
-                <Concept title="What it does">
-                  An IF/ELSE branch where each path uses a different hash algorithm. Push TRUE to
-                  prove knowledge of the SHA256 preimage, or FALSE for the HASH160 preimage.
-                  Both paths use the same preimage (&quot;hello&quot;) but verify different hash digests.
-                </Concept>
-                <Concept title="Real-world use">
-                  Demonstrates how to create scripts with alternative verification methods. In
-                  practice, this pattern appears in protocols where different parties use different
-                  hash algorithms, or where an upgrade path transitions from one hash function to
-                  another while keeping the same output.
-                </Concept>
-                <ScriptBlock label="Locking Script">
-                  <span className="text-primary">OP_IF</span>{"\n"}
-                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2cf24d...9824</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
-                  <span className="text-primary">OP_ELSE</span>{"\n"}
-                  {"  "}<span className="text-primary">OP_HASH160</span> <span className="text-xs">b6a9c8...7d0f</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
-                  <span className="text-primary">OP_ENDIF</span>
-                </ScriptBlock>
-                <ScriptBlock label="Unlocking Script">
-                  <span className="text-xs">68656c6c6f</span> <span className="text-primary">OP_TRUE</span>
-                  {"\n"}
-                  <span className="text-muted-foreground text-xs">
-                    Push &quot;hello&quot; + TRUE for SHA256 path. Change to FALSE for HASH160 path &mdash;
-                    same preimage satisfies both because the lock commits to both hash digests.
-                  </span>
-                </ScriptBlock>
-              </AccordionContent>
-            </AccordionItem>
-
-            {/* Dual Hash Path */}
-            <AccordionItem value="hash-dual-path" className="border border-border rounded-lg px-4">
-              <AccordionTrigger className="text-sm font-medium py-3 hover:no-underline">
-                Dual Hash Path
-              </AccordionTrigger>
-              <AccordionContent className="pb-4 space-y-4">
-                <Concept title="What it does">
-                  Two-path contract: claim with one preimage (IF) or refund with a different
-                  preimage (ELSE). This is the BSV-native HTLC structure &mdash; the script handles
-                  the branching and hash verification, while timing is enforced via nLockTime
-                  at the transaction level.
-                </Concept>
-                <Concept title="Real-world use">
-                  This is the HTLC pattern adapted for BSV. On BTC, the ELSE branch would use
-                  OP_CHECKLOCKTIMEVERIFY to enforce a timeout in script. On BSV, CLTV is disabled,
-                  so the refund TX itself carries a nLockTime value &mdash; miners reject it until
-                  the timeout. The script only needs to verify which hash is provided.
-                </Concept>
-                <ScriptBlock label="Locking Script">
-                  <span className="text-primary">OP_IF</span>{"\n"}
-                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2cf24d...9824</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
-                  <span className="text-primary">OP_ELSE</span>{"\n"}
-                  {"  "}<span className="text-primary">OP_SHA256</span> <span className="text-xs">2bb80d...a25b</span> <span className="text-primary">OP_EQUAL</span>{"\n"}
-                  <span className="text-primary">OP_ENDIF</span>
-                  {"\n\n"}
-                  <span className="text-muted-foreground text-xs">
-                    IF: claim with SHA256(&quot;hello&quot;). ELSE: refund with SHA256(&quot;secret&quot;).
-                    Both paths are fully testable in the playground.
-                  </span>
-                </ScriptBlock>
-                <ScriptBlock label="Unlocking Script (Claim)">
-                  <span className="text-xs">68656c6c6f</span> <span className="text-primary">OP_TRUE</span>
-                  {"\n"}
-                  <span className="text-muted-foreground text-xs">
-                    Claim: push &quot;hello&quot; + TRUE. Refund: push &quot;secret&quot; + FALSE.
-                    On-chain, the refund TX would have nLockTime set to a future block.
-                  </span>
-                </ScriptBlock>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

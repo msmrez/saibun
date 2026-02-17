@@ -1501,7 +1501,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "math-add",
     name: "Addition Puzzle",
-    category: "Puzzle",
+    category: "Lock Funds",
     description: "The two values pushed by the unlocking script must add up to 5.",
     lockingASM: "OP_ADD OP_5 OP_EQUAL",
     unlockingASM: "OP_2 OP_3",
@@ -1509,7 +1509,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "math-multiply",
     name: "Multiplication Puzzle",
-    category: "Puzzle",
+    category: "Lock Funds",
     description: "The two values must multiply to 12. OP_MUL is enabled in BSV (disabled in BTC since 2010).",
     lockingASM: "OP_MUL OP_12 OP_EQUAL",
     unlockingASM: "OP_3 OP_4",
@@ -1518,7 +1518,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "hash-sha256",
     name: "Hash Puzzle (SHA256)",
-    category: "Puzzle",
+    category: "Lock Funds",
     description:
       'Provide the SHA256 preimage of the hash. Preimage here is "hello" (hex 68656c6c6f).',
     lockingASM:
@@ -1530,7 +1530,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "hash-hash160",
     name: "Hash Puzzle (HASH160)",
-    category: "Puzzle",
+    category: "Lock Funds",
     description:
       'HASH160 = RIPEMD160(SHA256(x)) — the same hash used in P2PKH addresses. Preimage is "hello".',
     lockingASM:
@@ -1542,7 +1542,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "hash-ripemd160",
     name: "Hash Puzzle (RIPEMD160)",
-    category: "Puzzle",
+    category: "Lock Funds",
     description:
       'Direct RIPEMD160 puzzle. Produces a 20-byte hash. Preimage is "hello".',
     lockingASM:
@@ -1553,7 +1553,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "hash-dual-secret",
     name: "Dual Secret (AND)",
-    category: "Puzzle",
+    category: "Lock Funds",
     description:
       'Requires TWO preimages to unlock. Both SHA256 hashes must match. Useful for dual-party escrow where both must reveal their secrets.',
     lockingASM:
@@ -1566,7 +1566,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "range-check",
     name: "Range Check",
-    category: "Arithmetic",
+    category: "Lock Funds",
     description:
       "Value must be between 3 (inclusive) and 10 (exclusive). Demonstrates OP_WITHIN for numeric range validation.",
     lockingASM: "OP_DUP OP_3 OP_10 OP_WITHIN OP_VERIFY",
@@ -1576,7 +1576,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "abs-value",
     name: "Absolute Value",
-    category: "Arithmetic",
+    category: "Lock Funds",
     description:
       "The absolute value of the input must equal 7. Works with both 7 and -7.",
     lockingASM: "OP_ABS OP_7 OP_EQUAL",
@@ -1588,7 +1588,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "rpuzzle-raw",
     name: "R-Puzzle (Raw)",
-    category: "R-Puzzle",
+    category: "Lock Funds",
     description:
       "R-Puzzle locked to a raw R value. Anyone with the K value can sign and spend. Generate a new one for actual use.",
     lockingASM:
@@ -1697,7 +1697,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "htlc-redeem",
     name: "HTLC (Claim Path)",
-    category: "Escrow",
+    category: "Escrow & Swaps",
     description:
       'Hash Time-Locked Contract — the atomic swap primitive. Two paths: claim with secret preimage (IF), or refund with a different secret (ELSE). On BSV, refund timing is enforced via nLockTime at the TX level.',
     lockingASM:
@@ -1709,7 +1709,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "htlc-refund",
     name: "HTLC (Refund Path)",
-    category: "Escrow",
+    category: "Escrow & Swaps",
     description:
       "Same HTLC lock script — taking the ELSE (refund) branch. On-chain, the refund TX would set nLockTime to enforce a waiting period before miners accept it.",
     lockingASM:
@@ -1721,7 +1721,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "escrow-2of2",
     name: "2-of-2 Escrow (Reference)",
-    category: "Escrow",
+    category: "Escrow & Swaps",
     description:
       "Bare 2-of-2 multisig — both parties must sign to release funds. The simplest escrow pattern.",
     lockingASM:
@@ -1735,7 +1735,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "p2pkh-ref",
     name: "P2PKH (Reference)",
-    category: "Standard",
+    category: "Standard Payments",
     description:
       "Pay-to-Public-Key-Hash — the standard BSV payment pattern. Requires a valid signature + matching public key.",
     lockingASM:
@@ -1747,7 +1747,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "p2pk-ref",
     name: "P2PK (Reference)",
-    category: "Standard",
+    category: "Standard Payments",
     description:
       "Pay-to-Public-Key — the original Bitcoin payment script. The public key is embedded directly in the lock.",
     lockingASM:
@@ -1759,7 +1759,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "bare-multisig-ref",
     name: "1-of-2 Multisig (Reference)",
-    category: "Standard",
+    category: "Standard Payments",
     description:
       "Bare 1-of-2 multisig — either party can sign alone. Demonstrates OP_CHECKMULTISIG with threshold M < N.",
     lockingASM:
@@ -1795,7 +1795,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "op-return",
     name: "OP_RETURN Data",
-    category: "Data",
+    category: "Data Embedding",
     description:
       "Embed arbitrary data on-chain. OP_RETURN marks the output as provably unspendable.",
     lockingASM: "OP_FALSE OP_RETURN 48656c6c6f20576f726c64",
@@ -1805,7 +1805,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "op-return-multi",
     name: "OP_RETURN Multi-Push",
-    category: "Data",
+    category: "Data Embedding",
     description:
       "Multiple data fields in a single OP_RETURN — the pattern used by on-chain protocols (B://, MAP, etc.).",
     lockingASM: "OP_FALSE OP_RETURN 48656c6c6f 576f726c64 313233",
@@ -1815,7 +1815,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "data-integrity",
     name: "Data Integrity Proof",
-    category: "Data",
+    category: "Data Embedding",
     description:
       'Verify document integrity on-chain. The lock commits to a SHA256 hash; the unlock provides the original data. The script verifies the data matches — proving the document existed when the output was created. The output remains spendable.',
     lockingASM: "OP_DUP OP_SHA256 d0276bec6bc9b96f1893cd8f8b479dd6617d79a8f0a26593c9f12bdc45e3eea5 OP_EQUALVERIFY OP_SIZE OP_NIP OP_0 OP_GREATERTHAN",
@@ -1825,7 +1825,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "message-auth",
     name: "Message Authentication (OP_CAT)",
-    category: "Data",
+    category: "Data Embedding",
     description:
       'Verify a structured message by concatenating sender + payload and checking the combined hash. Demonstrates OP_CAT for composing data before verification — a pattern used in on-chain messaging and EDI.',
     lockingASM: "OP_CAT OP_SHA256 b5f2cf84fd46833a53045e8952af76ec501feb9254ab4fa0a000126a424bac6b OP_EQUAL",
@@ -1837,7 +1837,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "rabin-sig",
     name: "Rabin Signature Verification",
-    category: "Advanced",
+    category: "Covenants",
     description:
       'Verify a simplified Rabin signature on-chain. The verifier computes s² mod n and checks it equals the message digest m. Uses OP_MUL and OP_MOD — opcodes restored in BSV.',
     lockingASM: "OP_DUP OP_MUL 4d OP_MOD OP_4 OP_EQUAL",
@@ -1847,7 +1847,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "op-push-tx",
     name: "OP_PUSH_TX Covenant",
-    category: "Advanced",
+    category: "Covenants",
     description:
       'Transaction introspection pattern. The spending transaction\'s sighash preimage is pushed in the unlock and verified by the lock using OP_CHECKSIG with a known ephemeral key. Once verified, the preimage bytes are available on the stack — enabling covenants that constrain how funds can be spent.',
     lockingASM: "OP_DUP OP_HASH160 0000000000000000000000000000000000000000 OP_EQUALVERIFY OP_CHECKSIG",
@@ -1861,7 +1861,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "conditional-hash",
     name: "Conditional Hash (SHA256 or HASH160)",
-    category: "Combination",
+    category: "Escrow & Swaps",
     description:
       'Choose which hash algorithm to prove: push TRUE for SHA256 path, FALSE for HASH160 path. Both use preimage "hello".',
     lockingASM:
@@ -1872,7 +1872,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
   {
     id: "hash-dual-path",
     name: "Dual Hash Path",
-    category: "Combination",
+    category: "Escrow & Swaps",
     description:
       'Two-path contract: claim with one preimage (IF) or refund with a different preimage (ELSE). The BSV-native HTLC structure — timing is enforced via nLockTime at the TX level, not script opcodes.',
     lockingASM:
@@ -1928,7 +1928,7 @@ export const OPCODE_REFERENCE: OpcodeCategory[] = [
     ],
   },
   {
-    category: "Arithmetic",
+    category: "Lock Funds",
     opcodes: [
       { name: "OP_ADD", desc: "a + b" },
       { name: "OP_SUB", desc: "a − b" },
