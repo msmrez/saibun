@@ -507,53 +507,64 @@ export default function SaibunPage() {
 
       <footer className="border-t border-border mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>Saibun - Precision UTXO splitting</p>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/learn"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                <BookOpen className="h-3 w-3" />
-                Learn
-              </Link>
-              <Link
-                href="/scripts"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                <Code2 className="h-3 w-3" />
-                Scripts
-              </Link>
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="hover:text-foreground transition-colors flex items-center gap-1 group relative"
-                title={CONTACT_EMAIL}
-              >
-                <Mail className="h-3 w-3" />
-                <span>Contact</span>
-                <span className="absolute left-0 bottom-full mb-2 px-2 py-1 text-xs bg-popover border border-border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                  {CONTACT_EMAIL}
-                </span>
-              </a>
-              <a
-                href="https://github.com/msmrez/saibun"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                <Github className="h-3 w-3" />
-                GitHub
-              </a>
-              <a
-                href="https://docs.bitails.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground transition-colors flex items-center gap-1"
-              >
-                Bitails API
-                <ExternalLink className="h-3 w-3" />
-              </a>
-              <DonationDialog />
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+              <p>Saibun - Precision UTXO splitting</p>
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                <Link
+                  href="/learn"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <BookOpen className="h-3 w-3" />
+                  Learn
+                </Link>
+                <Link
+                  href="/scripts"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <Code2 className="h-3 w-3" />
+                  Scripts
+                </Link>
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="hover:text-foreground transition-colors flex items-center gap-1 group relative"
+                  title={CONTACT_EMAIL}
+                >
+                  <Mail className="h-3 w-3" />
+                  <span>Contact</span>
+                  <span className="absolute left-0 bottom-full mb-2 px-2 py-1 text-xs bg-popover border border-border rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                    {CONTACT_EMAIL}
+                  </span>
+                </a>
+                <a
+                  href="https://github.com/msmrez/saibun"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <Github className="h-3 w-3" />
+                  GitHub
+                </a>
+                <a
+                  href="https://docs.bitails.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  Bitails API
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+                <DonationDialog />
+              </div>
+            </div>
+            <div className="pt-4 border-t border-border/50">
+              <p className="text-xs text-muted-foreground text-center">
+                By using Saibun tools, you agree to our{" "}
+                <Link href="/terms" className="hover:text-foreground underline transition-colors">
+                  Terms of Service
+                </Link>
+                . Use at your own risk. Transactions are irreversible.
+              </p>
             </div>
           </div>
         </div>

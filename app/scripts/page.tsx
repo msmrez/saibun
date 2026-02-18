@@ -77,6 +77,7 @@ import {
   broadcastTransaction,
 } from "@/lib/script-playground";
 import { isValidWif, isValidAddress, importFromWif, fetchUtxosWithRawTx, fetchSpendingTx, fetchRawTransaction } from "@/lib/bsv";
+import { DisclaimerDialog } from "@/components/scripts/disclaimer-dialog";
 
 type HashAlgo = "SHA256" | "HASH160" | "HASH256" | "RIPEMD160" | "SHA1";
 
@@ -2506,6 +2507,51 @@ export default function ScriptsPage() {
           </Card>
         </section>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-border mt-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+              <p>Saibun Script Lab</p>
+              <div className="flex items-center gap-4 flex-wrap justify-center">
+                <Link
+                  href="/"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  UTXO Splitter
+                </Link>
+                <Link
+                  href="/scripts/learn"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <BookOpen className="h-3 w-3" />
+                  Guide
+                </Link>
+                <Link
+                  href="/scripts/challenges"
+                  className="hover:text-foreground transition-colors flex items-center gap-1"
+                >
+                  <Puzzle className="h-3 w-3" />
+                  Challenges
+                </Link>
+              </div>
+            </div>
+            <div className="pt-4 border-t border-border/50">
+              <p className="text-xs text-muted-foreground text-center">
+                By using Saibun tools, you agree to our{" "}
+                <Link href="/terms" className="hover:text-foreground underline transition-colors">
+                  Terms of Service
+                </Link>
+                . Use at your own risk. Transactions are irreversible.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
+
+      {/* Security Disclaimer Dialog */}
+      <DisclaimerDialog />
     </div>
   );
 }

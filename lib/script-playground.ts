@@ -1592,7 +1592,7 @@ export const TEMPLATES: PlaygroundTemplate[] = [
     description:
       "R-Puzzle locked to a raw R value. Anyone with the K value can sign and spend. Generate a new one for actual use.",
     lockingASM:
-      "OP_OVER OP_3 OP_SPLIT OP_NIP OP_1 OP_SPLIT OP_SWAP OP_SPLIT OP_DROP f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f OP_EQUALVERIFY OP_CHECKSIG",
+      "OP_OVER OP_3 OP_SPLIT OP_NIP OP_TRUE OP_SPLIT OP_SWAP OP_SPLIT OP_DROP f01d6b9018ab421dd410404cb869072065522bf85734008f105cf385a023a80f OP_EQUALVERIFY OP_CHECKSIG",
     unlockingASM: "<signature> <public key>",
     note: "R-Puzzles require OP_CHECKSIG — use the Transaction Builder to create real R-Puzzle transactions. K value for this example: 3039 (hex).",
     requiresTxContext: true,
@@ -1831,6 +1831,17 @@ export const TEMPLATES: PlaygroundTemplate[] = [
     lockingASM: "OP_CAT OP_SHA256 b5f2cf84fd46833a53045e8952af76ec501feb9254ab4fa0a000126a424bac6b OP_EQUAL",
     unlockingASM: "616c696365 696e766f696365",
     note: 'Push sender "alice" + payload "invoice". OP_CAT joins them, SHA256 hashes the result, and the lock verifies against the committed hash. This pattern enables on-chain EDI: structured B2B data (purchase orders, invoices) verified and timestamped without OP_RETURN — the output stays spendable.',
+  },
+  {
+    id: "brc48-push-drop",
+    name: "BRC-48: Pay to Push Drop",
+    category: "Data Embedding",
+    description:
+      "BRC-48: Data-rich tokens with ownership. Push arbitrary data onto the stack, drop it with OP_DROP/OP_2DROP, then lock to a public key. Output stays in the UTXO set (not prunable) and can be transferred by the owner. The original Bitcoin way of embedding data — no OP_RETURN needed.",
+    lockingASM: "48656c6c6f 576f726c64 OP_DROP OP_2DROP 0000000000000000000000000000000000000000000000000000000000000000aa OP_CHECKSIG",
+    unlockingASM: "<signature>",
+    note: 'BRC-48 pattern. Data: "Hello" "World". Push data (OP_PUSHDATA implicit), drop it, then lock to owner\'s public key. Owner transfers token by spending with signature. Used for persistent tokens, identity anchors (BRC-52), and metadata-rich digital assets. Stays in UTXO set — not prunable like OP_RETURN.',
+    requiresTxContext: true,
   },
 
   // ── Advanced ─────────────────────────────────────────────────────────
