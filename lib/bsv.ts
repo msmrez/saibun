@@ -209,10 +209,11 @@ export function importFromWif(wif: string): {
       // Uncompressed WIF: prefix (0x80) + 32-byte key = 33 bytes total
       // Compressed WIF: prefix (0x80) + 32-byte key + 0x01 = 34 bytes total
       if (decoded.data.length === 32) {
-        // Uncompressed WIF - extract the 32-byte private key
+        // Uncompressed WIF — derive address from the uncompressed public key,
+        // matching how the hex import path works (addressFromPublicKeyUncompressed).
         const privateKey = new PrivateKey(decoded.data);
         const publicKey = privateKey.toPublicKey();
-        const address = publicKey.toAddress();
+        const address = addressFromPublicKeyUncompressed(publicKey);
 
         return {
           privateKeyWif: wif,
