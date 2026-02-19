@@ -192,6 +192,7 @@ export function importFromWif(wif: string): {
   publicKeyHex: string;
 } {
   try {
+    // Try SDK's fromWif first (supports compressed WIF: K/L, 52 chars)
     const privateKey = PrivateKey.fromWif(wif);
     const publicKey = privateKey.toPublicKey();
     const address = publicKey.toAddress();
@@ -202,6 +203,26 @@ export function importFromWif(wif: string): {
       publicKeyHex: publicKey.toString(),
     };
   } catch (e) {
+    // SDK's fromWif only accepts compressed WIF (K/L). Try manual decode for uncompressed (5, 51 chars)
+    try {
+      const decoded = Utils.fromBase58Check(wif, undefined, 1);
+      // Uncompressed WIF: prefix (0x80) + 32-byte key = 33 bytes total
+      // Compressed WIF: prefix (0x80) + 32-byte key + 0x01 = 34 bytes total
+      if (decoded.data.length === 32) {
+        // Uncompressed WIF - extract the 32-byte private key
+        const privateKey = new PrivateKey(decoded.data);
+        const publicKey = privateKey.toPublicKey();
+        const address = publicKey.toAddress();
+
+        return {
+          privateKeyWif: wif,
+          address,
+          publicKeyHex: publicKey.toString(),
+        };
+      }
+    } catch (uncompressedError) {
+      // Not uncompressed WIF either
+    }
     throw new Error("Invalid WIF format");
   }
 }
@@ -278,9 +299,21 @@ export function isValidAddress(address: string): boolean {
 
 export function isValidWif(wif: string): boolean {
   try {
+    // Try SDK's fromWif (compressed WIF: K/L)
     PrivateKey.fromWif(wif);
     return true;
   } catch {
+    // Try manual decode for uncompressed WIF (5)
+    try {
+      const decoded = Utils.fromBase58Check(wif, undefined, 1);
+      if (decoded.data.length === 32) {
+        // Valid uncompressed WIF - verify we can create a PrivateKey from it
+        new PrivateKey(decoded.data);
+        return true;
+      }
+    } catch {
+      // Not a valid WIF
+    }
     return false;
   }
 }
@@ -295,6 +328,7 @@ export function isValidPrivateKey(input: string): boolean {
 
 /**
  * Returns a PrivateKey from either WIF or hex string. Use when the source might be either (e.g. Script Lab input).
+ * Supports both compressed (K/L) and uncompressed (5) WIF formats.
  */
 export function privateKeyFromInput(input: string): PrivateKey {
   const trimmed = input.trim();
@@ -302,7 +336,21 @@ export function privateKeyFromInput(input: string): PrivateKey {
   if (normalizedHex.length === 64 && /^[0-9a-fA-F]+$/.test(normalizedHex)) {
     return PrivateKey.fromHex(normalizedHex);
   }
-  return PrivateKey.fromWif(trimmed);
+  // Try SDK's fromWif (compressed WIF: K/L)
+  try {
+    return PrivateKey.fromWif(trimmed);
+  } catch {
+    // Try manual decode for uncompressed WIF (5)
+    try {
+      const decoded = Utils.fromBase58Check(trimmed, undefined, 1);
+      if (decoded.data.length === 32) {
+        return new PrivateKey(decoded.data);
+      }
+    } catch {
+      // Not a valid uncompressed WIF either
+    }
+    throw new Error("Invalid WIF format");
+  }
 }
 
 export function isValidXpub(xpub: string): boolean {
@@ -416,7 +464,7 @@ export async function buildSplitTransaction(
   config: SplitConfig,
   options?: { useUncompressedPubkey?: boolean }
 ): Promise<TransactionDetails> {
-  const privateKey = PrivateKey.fromWif(privateKeyWif);
+  const privateKey = privateKeyFromInput(privateKeyWif);
   const p2pkh = new P2PKH();
   const preferUncompressed = options?.useUncompressedPubkey === true;
 
@@ -442,7 +490,7 @@ export async function buildSplitTransaction(
   // Calculate potential change
   let change = totalInput - totalRequiredOutput - estimatedFee;
   const dustThreshold = 1;
-  const hasChange = change > dustThreshold;
+  let hasChange = change > dustThreshold;
   
   // If change exists, recalculate fee WITH change output for accuracy
   if (hasChange) {
@@ -454,6 +502,8 @@ export async function buildSplitTransaction(
     );
     // Recalculate change with accurate fee
     change = totalInput - totalRequiredOutput - estimatedFee;
+    // Recheck if change is still above dust threshold after fee recalculation
+    hasChange = change > dustThreshold;
   }
 
   if (totalInput < totalRequiredOutput + estimatedFee) {
