@@ -76,7 +76,7 @@ import {
   simulateTransactionSpend,
   broadcastTransaction,
 } from "@/lib/script-playground";
-import { isValidWif, isValidAddress, importFromWif, fetchUtxosWithRawTx, fetchSpendingTx, fetchRawTransaction } from "@/lib/bsv";
+import { isValidPrivateKey, isValidAddress, importFromPrivateKey, fetchUtxosWithRawTx, fetchSpendingTx, fetchRawTransaction } from "@/lib/bsv";
 import { DisclaimerDialog } from "@/components/scripts/disclaimer-dialog";
 
 type HashAlgo = "SHA256" | "HASH160" | "HASH256" | "RIPEMD160" | "SHA1";
@@ -209,9 +209,9 @@ export default function ScriptsPage() {
 
   // Derive address from WIF when it changes
   useEffect(() => {
-    if (lockWif.trim() && isValidWif(lockWif.trim())) {
+    if (lockWif.trim() && isValidPrivateKey(lockWif.trim())) {
       try {
-        const { address } = importFromWif(lockWif.trim());
+        const { address } = importFromPrivateKey(lockWif.trim());
         setLockAddress(address);
       } catch {
         setLockAddress("");
@@ -389,8 +389,8 @@ export default function ScriptsPage() {
   }, [builderUnlockTpl, unlockHashPreimage, unlockHashPreimageIsHex, unlockScriptASM, altStackVal1, altStackVal2, toast]);
 
   const handleBuildLock = useCallback(async () => {
-    if (!lockWif.trim() || !isValidWif(lockWif.trim())) {
-      toast({ title: "Invalid WIF", description: "Please enter a valid private key (WIF format).", variant: "destructive" });
+    if (!lockWif.trim() || !isValidPrivateKey(lockWif.trim())) {
+      toast({ title: "Invalid key", description: "Please enter a valid private key (WIF or hex).", variant: "destructive" });
       return;
     }
     if (!lockSourceTx.trim()) {
@@ -440,8 +440,8 @@ export default function ScriptsPage() {
     // Private key is only required for R-Puzzle (needs signature)
     // Hash puzzles and custom scripts don't need private keys
     if (builderUnlockTpl?.interactiveConfig === "r-puzzle") {
-      if (!unlockWif.trim() || !isValidWif(unlockWif.trim())) {
-        toast({ title: "Invalid WIF", description: "R-Puzzle requires a private key for signing.", variant: "destructive" });
+      if (!unlockWif.trim() || !isValidPrivateKey(unlockWif.trim())) {
+        toast({ title: "Invalid key", description: "R-Puzzle requires a private key for signing.", variant: "destructive" });
         return;
       }
     }
@@ -504,7 +504,7 @@ export default function ScriptsPage() {
         resolvedASM,
         unlockDestAddr.trim(),
         feeRate,
-        unlockWif.trim() && isValidWif(unlockWif.trim()) ? unlockWif.trim() : undefined
+        unlockWif.trim() && isValidPrivateKey(unlockWif.trim()) ? unlockWif.trim() : undefined
       );
       setUnlockResult(res);
       toast({ title: "Transaction Built", description: "Your spending transaction is ready to broadcast!" });
@@ -575,11 +575,11 @@ export default function ScriptsPage() {
   }, [unlockResult, toast]);
 
   const handleLoadUtxo = useCallback(async () => {
-    if (!lockWif.trim() || !isValidWif(lockWif.trim())) {
-      toast({ title: "Enter private key first", description: "A valid WIF key is needed to derive the address.", variant: "destructive" });
+    if (!lockWif.trim() || !isValidPrivateKey(lockWif.trim())) {
+      toast({ title: "Enter private key first", description: "A valid private key (WIF or hex) is needed to derive the address.", variant: "destructive" });
       return;
     }
-    const { address } = importFromWif(lockWif.trim());
+    const { address } = importFromPrivateKey(lockWif.trim());
     setLoadingUtxo(true);
     try {
       const utxos = await fetchUtxosWithRawTx(address);
@@ -1958,13 +1958,13 @@ export default function ScriptsPage() {
                     <div className="space-y-2">
                       <Label className="text-xs font-medium flex items-center gap-2">
                         <Key className="h-3.5 w-3.5 text-muted-foreground" />
-                        Private Key (WIF) <span className="text-destructive">*</span>
+                        Private Key (WIF or Hex) <span className="text-destructive">*</span>
                       </Label>
                       <Input
                         type="password"
                         value={lockWif}
                         onChange={(e) => setLockWif(e.target.value)}
-                        placeholder="L... or K..."
+                        placeholder="WIF (K, L, 5...) or 64-char hex"
                         className="font-mono text-xs"
                       />
                       {lockAddress && (
@@ -2357,14 +2357,14 @@ export default function ScriptsPage() {
                     <div className="space-y-2">
                       <Label className="text-xs font-medium flex items-center gap-2">
                         <Key className="h-3.5 w-3.5 text-muted-foreground" />
-                        Private Key (WIF) {builderUnlockTpl?.interactiveConfig === "r-puzzle" && <span className="text-destructive">*</span>}
+                        Private Key (WIF or Hex) {builderUnlockTpl?.interactiveConfig === "r-puzzle" && <span className="text-destructive">*</span>}
                         {builderUnlockTpl?.interactiveConfig !== "r-puzzle" && <span className="text-muted-foreground text-[10px]">(Optional)</span>}
                       </Label>
                       <Input
                         type="password"
                         value={unlockWif}
                         onChange={(e) => setUnlockWif(e.target.value)}
-                        placeholder="L... or K..."
+                        placeholder="WIF (K, L, 5...) or 64-char hex"
                         className="font-mono text-xs"
                       />
                       <p className="text-[10px] text-muted-foreground">

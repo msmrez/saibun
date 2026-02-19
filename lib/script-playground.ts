@@ -13,6 +13,7 @@ import {
   type TransactionInput,
   type TransactionOutput,
 } from "@bsv/sdk";
+import { privateKeyFromInput } from "./bsv";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -660,7 +661,7 @@ export async function buildCustomLockTransaction(
   feeRateSatPerByte: number,
   changeAddress?: string
 ): Promise<BuildTransactionResult> {
-  const privateKey = PrivateKey.fromWif(privateKeyWif);
+  const privateKey = privateKeyFromInput(privateKeyWif);
   const p2pkh = new P2PKH();
 
   // Parse source transaction
@@ -799,7 +800,7 @@ export async function buildCustomUnlockTransaction(
   const p2pkh = new P2PKH();
   let changeAddress = destinationAddress;
   if (privateKeyWif) {
-    const privateKey = PrivateKey.fromWif(privateKeyWif);
+    const privateKey = privateKeyFromInput(privateKeyWif);
     changeAddress = privateKey.toPublicKey().toAddress();
   }
 
@@ -1049,7 +1050,7 @@ export async function buildRPuzzleUnlockTransaction(
   destinationAddress: string,
   feeRateSatPerByte: number
 ): Promise<BuildTransactionResult> {
-  const privateKey = PrivateKey.fromWif(privateKeyWif);
+  const privateKey = privateKeyFromInput(privateKeyWif);
   const p2pkh = new P2PKH();
 
   // Parse source transaction

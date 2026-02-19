@@ -42,6 +42,8 @@ interface TransactionBuilderProps {
   utxos: BitailsUtxo[];
   config: SplitConfig;
   isOfflineMode?: boolean;
+  /** True when key was imported from hex (64 chars); use uncompressed pubkey when signing. */
+  keyFromHex?: boolean;
 }
 
 export function TransactionBuilder({
@@ -50,6 +52,7 @@ export function TransactionBuilder({
   utxos,
   config,
   isOfflineMode = false,
+  keyFromHex = false,
 }: TransactionBuilderProps) {
   const [building, setBuilding] = useState(false);
   const [broadcasting, setBroadcasting] = useState(false);
@@ -68,7 +71,8 @@ export function TransactionBuilder({
         privateKeyWif,
         utxos,
         sourceAddress,
-        config
+        config,
+        { useUncompressedPubkey: keyFromHex }
       );
       setTxDetails(result);
     } catch (err) {

@@ -45,9 +45,9 @@ import {
   type BuildTransactionResult,
 } from "@/lib/script-playground";
 import {
-  isValidWif,
+  isValidPrivateKey,
   isValidAddress,
-  importFromWif,
+  importFromPrivateKey,
   fetchUtxosWithRawTx,
   fetchRawTransaction,
   type BitailsUtxo,
@@ -457,7 +457,7 @@ export default function ContractsPage() {
   // ── WIF ──
   const handleWif = useCallback((v: string) => {
     setWif(v);
-    setAddress(isValidWif(v) ? importFromWif(v).address : "");
+    setAddress(isValidPrivateKey(v) ? importFromPrivateKey(v).address : "");
   }, []);
 
   // ── Fetch UTXOs ──
@@ -661,7 +661,7 @@ export default function ContractsPage() {
           <CardContent className="pt-5 pb-4 space-y-2">
             <div className="flex items-center gap-2 mb-1">
               <KeyRound className="h-4 w-4 text-primary" />
-              <Label className="text-sm font-medium">Private Key (WIF)</Label>
+              <Label className="text-sm font-medium">Private Key (WIF or Hex)</Label>
             </div>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -669,7 +669,7 @@ export default function ContractsPage() {
                   type={showWif ? "text" : "password"}
                   value={wif}
                   onChange={(e) => handleWif(e.target.value)}
-                  placeholder="Needed for deploying contracts..."
+                  placeholder="WIF (K, L, 5...) or 64-char hex"
                   className="pr-10 font-mono text-xs"
                 />
                 <button type="button" onClick={() => setShowWif(!showWif)} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -777,7 +777,7 @@ export default function ContractsPage() {
                 <div>
                   <p className="text-sm font-medium mb-3">3. Fund &amp; Deploy</p>
                   {!address ? (
-                    <p className="text-sm text-muted-foreground">Enter a WIF private key above.</p>
+                    <p className="text-sm text-muted-foreground">Enter a WIF or hex private key above.</p>
                   ) : !utxos.length ? (
                     <div className="space-y-2">
                       <Button size="sm" onClick={handleFetchUtxos} disabled={fetchingUtxos} className="gap-1.5">

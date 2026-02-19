@@ -169,7 +169,8 @@ export function UTXOFetcher({ address, onUTXOsReady }: UTXOFetcherProps) {
       setUtxos(validatedUtxos);
       onUTXOsReady(validatedUtxos, "offline");
     } catch (err) {
-      setParseError(err instanceof Error ? err.message : "Validation failed");
+      const msg = err instanceof Error ? err.message : String(err);
+      setParseError(msg || "Validation failed");
     }
   };
 
@@ -307,7 +308,7 @@ export function UTXOFetcher({ address, onUTXOsReady }: UTXOFetcherProps) {
                       For each UTXO you want to spend, provide:
                     </p>
                     <ul className="text-muted-foreground space-y-1 list-disc list-inside">
-                      <li><strong>Raw TX Hex:</strong> The full source transaction (starts with 01000000 or 02000000)</li>
+                      <li><strong>Raw TX Hex:</strong> The transaction that <strong>created</strong> this UTXO (the one you are spending from), not the spending tx you are building (starts with 01000000 or 02000000)</li>
                       <li><strong>Output Index:</strong> Which output to spend (0, 1, 2...)</li>
                     </ul>
                     <p className="text-muted-foreground text-[10px] sm:text-xs mt-2">
@@ -360,8 +361,8 @@ export function UTXOFetcher({ address, onUTXOsReady }: UTXOFetcherProps) {
                                 <Info className="h-3.5 w-3.5" />
                               </button>
                             </TooltipTrigger>
-                            <TooltipContent sideOffset={6}>
-                              Paste the full source transaction hex (not JSON). Saibun uses it to sign inputs.
+                            <TooltipContent sideOffset={6} className="max-w-[280px]">
+                              Paste the hex of the transaction that <strong>created</strong> this UTXO (the one you are spending from), not the spending transaction you are building.
                             </TooltipContent>
                           </Tooltip>
                         </div>

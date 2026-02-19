@@ -6,9 +6,99 @@ import {
   Transaction,
   HD,
   LockingScript,
+  UnlockingScript,
+  Hash,
+  Utils,
   type TransactionInput,
   type TransactionOutput,
 } from "@bsv/sdk";
+import type { PublicKey } from "@bsv/sdk";
+
+/** Uncompressed P2PKH address (for hex-imported keys only). WIF path uses SDK default (compressed). */
+function addressFromPublicKeyUncompressed(publicKey: PublicKey): string {
+  const payload = publicKey.encode(false) as number[];
+  const hash = Hash.hash160(payload);
+  return Utils.toBase58Check(hash, [0x00]);
+}
+
+/** P2PKH unlock with uncompressed pubkey (for spending outputs sent to hex-derived address). */
+function p2pkhUnlockWithUncompressedPubkey(
+  privateKey: InstanceType<typeof PrivateKey>
+): { sign: (tx: InstanceType<typeof Transaction>, inputIndex: number) => Promise<UnlockingScript>; estimateLength: () => Promise<number> } {
+  const p2pkh = new P2PKH();
+  const defaultTemplate = p2pkh.unlock(privateKey);
+  return {
+    async sign(tx, inputIndex) {
+      const defaultScript = await defaultTemplate.sign(tx, inputIndex);
+      const chunks = defaultScript.chunks;
+      if (!chunks || chunks.length < 2) {
+        return defaultScript;
+      }
+      const sigChunk = chunks[0];
+      const uncompressedPubkey = privateKey.toPublicKey().encode(false) as number[];
+      const uncompressedChunk = { op: 0x41, data: uncompressedPubkey };
+      return new UnlockingScript([sigChunk, uncompressedChunk]);
+    },
+    estimateLength: () => defaultTemplate.estimateLength(),
+  };
+}
+
+const OP_DUP = 0x76;
+const OP_HASH160 = 0xa8;
+const OP_EQUALVERIFY = 0x88;
+const OP_CHECKSIG = 0xac;
+
+/** Extract the 20-byte pubkey hash from a P2PKH locking script, or null if not P2PKH. */
+function getP2PKHPubkeyHash(lockScript: LockingScript): number[] | null {
+  const chunks = lockScript.chunks;
+  if (
+    !chunks ||
+    chunks.length < 5 ||
+    chunks[0].op !== OP_DUP ||
+    chunks[1].op !== OP_HASH160 ||
+    (chunks[2].op as number) !== 20 ||
+    !Array.isArray(chunks[2].data) ||
+    (chunks[2].data as number[]).length !== 20 ||
+    chunks[3].op !== OP_EQUALVERIFY ||
+    chunks[4].op !== OP_CHECKSIG
+  ) {
+    return null;
+  }
+  return chunks[2].data as number[];
+}
+
+/** Pick compressed or uncompressed unlock template based on the source output's P2PKH hash. */
+function selectUnlockTemplate(
+  privateKey: InstanceType<typeof PrivateKey>,
+  sourceLockScript: LockingScript,
+  preferUncompressed: boolean
+): { sign: (tx: InstanceType<typeof Transaction>, inputIndex: number) => Promise<UnlockingScript>; estimateLength: () => Promise<number> } {
+  const p2pkh = new P2PKH();
+  const hash = getP2PKHPubkeyHash(sourceLockScript);
+  if (hash) {
+    const pub = privateKey.toPublicKey();
+    const compressedHash = Array.from(Hash.hash160(pub.encode(true) as number[]) as Iterable<number>);
+    const uncompressedHash = Array.from(Hash.hash160(pub.encode(false) as number[]) as Iterable<number>);
+    const matchCompressed =
+      compressedHash.length === hash.length && compressedHash.every((b, i) => b === hash[i]);
+    const matchUncompressed =
+      uncompressedHash.length === hash.length && uncompressedHash.every((b, i) => b === hash[i]);
+    // Prioritize uncompressed if it matches (for hex-imported keys)
+    if (matchUncompressed) {
+      return p2pkhUnlockWithUncompressedPubkey(privateKey);
+    }
+    // Otherwise use compressed if it matches (standard WIF path)
+    if (matchCompressed) {
+      return p2pkh.unlock(privateKey);
+    }
+    // If hash doesn't match either format, the UTXO doesn't belong to this key
+    throw new Error(
+      `UTXO locking script hash does not match this key's compressed or uncompressed address. The UTXO may belong to a different key.`
+    );
+  }
+  // Fallback for non-P2PKH outputs (shouldn't happen in normal flow, but handle gracefully)
+  return preferUncompressed ? p2pkhUnlockWithUncompressedPubkey(privateKey) : p2pkh.unlock(privateKey);
+}
 
 const P2PKH_INPUT_SIZE_BYTES = 148;
 const P2PKH_OUTPUT_SIZE_BYTES = 34;
@@ -91,7 +181,7 @@ export function generateKeyPair(): {
 
   return {
     privateKeyWif: privateKey.toWif(),
-    address: address,
+    address,
     publicKeyHex: publicKey.toString(),
   };
 }
@@ -108,12 +198,68 @@ export function importFromWif(wif: string): {
 
     return {
       privateKeyWif: wif,
-      address: address,
+      address,
       publicKeyHex: publicKey.toString(),
     };
   } catch (e) {
     throw new Error("Invalid WIF format");
   }
+}
+
+/** Hex string is 64 hex chars (32 bytes). Optional 0x prefix is stripped. */
+function normalizeHexKey(hex: string): string {
+  const trimmed = hex.trim();
+  const withoutPrefix = trimmed.toLowerCase().startsWith("0x") ? trimmed.slice(2) : trimmed;
+  return withoutPrefix.replace(/\s/g, "");
+}
+
+export function isValidPrivateKeyHex(hex: string): boolean {
+  const normalized = normalizeHexKey(hex);
+  if (normalized.length !== 64 || !/^[0-9a-fA-F]+$/.test(normalized)) {
+    return false;
+  }
+  try {
+    PrivateKey.fromHex(normalized);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Import a private key from either WIF or hex string format.
+ * WIF: uses SDK default (compressed address). Hex: uses uncompressed address so the same key matches 13vUHvoL...-style addresses.
+ * Returns fromHex: true when input was hex, so the app can use uncompressed signing when building txs.
+ */
+export function importFromPrivateKey(input: string): {
+  privateKeyWif: string;
+  address: string;
+  publicKeyHex: string;
+  fromHex?: boolean;
+} {
+  const trimmed = input.trim();
+  if (!trimmed) {
+    throw new Error("Private key is required");
+  }
+  // Hex: 64 hex chars, optionally with 0x prefix → uncompressed address + flag for signing
+  const normalizedHex = normalizeHexKey(trimmed);
+  if (normalizedHex.length === 64 && /^[0-9a-fA-F]+$/.test(normalizedHex)) {
+    try {
+      const privateKey = PrivateKey.fromHex(normalizedHex);
+      const publicKey = privateKey.toPublicKey();
+      const address = addressFromPublicKeyUncompressed(publicKey);
+      return {
+        privateKeyWif: privateKey.toWif(),
+        address,
+        publicKeyHex: publicKey.toString(),
+        fromHex: true,
+      };
+    } catch (e) {
+      throw new Error("Invalid private key hex");
+    }
+  }
+  const wifResult = importFromWif(trimmed);
+  return { ...wifResult, fromHex: false };
 }
 
 export function isValidAddress(address: string): boolean {
@@ -137,6 +283,26 @@ export function isValidWif(wif: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** Returns true if the input is a valid private key in either WIF or hex (64 hex chars) format. */
+export function isValidPrivateKey(input: string): boolean {
+  const trimmed = input.trim();
+  if (!trimmed) return false;
+  if (isValidPrivateKeyHex(trimmed)) return true;
+  return isValidWif(trimmed);
+}
+
+/**
+ * Returns a PrivateKey from either WIF or hex string. Use when the source might be either (e.g. Script Lab input).
+ */
+export function privateKeyFromInput(input: string): PrivateKey {
+  const trimmed = input.trim();
+  const normalizedHex = normalizeHexKey(trimmed);
+  if (normalizedHex.length === 64 && /^[0-9a-fA-F]+$/.test(normalizedHex)) {
+    return PrivateKey.fromHex(normalizedHex);
+  }
+  return PrivateKey.fromWif(trimmed);
 }
 
 export function isValidXpub(xpub: string): boolean {
@@ -247,10 +413,12 @@ export async function buildSplitTransaction(
   privateKeyWif: string,
   utxos: BitailsUtxo[],
   sourceAddress: string,
-  config: SplitConfig
+  config: SplitConfig,
+  options?: { useUncompressedPubkey?: boolean }
 ): Promise<TransactionDetails> {
   const privateKey = PrivateKey.fromWif(privateKeyWif);
   const p2pkh = new P2PKH();
+  const preferUncompressed = options?.useUncompressedPubkey === true;
 
   for (const utxo of utxos) {
     if (!utxo.rawTxHex) {
@@ -339,10 +507,15 @@ export async function buildSplitTransaction(
       );
     }
 
+    const unlockTemplate = selectUnlockTemplate(
+      privateKey,
+      sourceOutput.lockingScript,
+      preferUncompressed
+    );
     inputs.push({
       sourceTransaction,
       sourceOutputIndex: utxo.vout,
-      unlockingScriptTemplate: p2pkh.unlock(privateKey),
+      unlockingScriptTemplate: unlockTemplate,
       sequence: 0xffffffff,
     });
   }

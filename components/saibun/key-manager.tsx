@@ -10,8 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   generateKeyPair,
-  importFromWif,
-  isValidWif,
+  importFromPrivateKey,
+  isValidPrivateKey,
 } from "@/lib/bsv";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 interface KeyManagerProps {
-  onKeyReady: (privateKeyWif: string, address: string) => void;
+  onKeyReady: (privateKeyWif: string, address: string, fromHex?: boolean) => void;
 }
 
 export function KeyManager({ onKeyReady }: KeyManagerProps) {
@@ -68,19 +68,19 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
   const handleImport = () => {
     setImportError("");
     try {
-      if (!isValidWif(importWif.trim())) {
-        setImportError("Invalid WIF format. Please check and try again.");
+      if (!isValidPrivateKey(importWif.trim())) {
+        setImportError("Invalid key. Use WIF (K, L, 5...) or hex (64 hex characters).");
         return;
       }
-      
-      const result = importFromWif(importWif.trim());
+
+      const result = importFromPrivateKey(importWif.trim());
       setWif(result.privateKeyWif);
       setAddress(result.address);
       setHasImported(true);
       setHasGenerated(false);
-      onKeyReady(result.privateKeyWif, result.address);
+      onKeyReady(result.privateKeyWif, result.address, result.fromHex);
     } catch (err) {
-      setImportError("Invalid WIF format. Please check and try again.");
+      setImportError("Invalid key. Use WIF (K, L, 5...) or hex (64 hex characters).");
     }
   };
 
@@ -375,12 +375,12 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
           <div className="space-y-4 sm:space-y-6">
             <div className="space-y-2 sm:space-y-3">
               <Label htmlFor="import-wif" className="text-xs sm:text-sm font-medium">
-                WIF Private Key
+                Private Key (WIF or Hex)
               </Label>
               <Input
                 id="import-wif"
                 type="password"
-                placeholder="Enter your WIF private key (starts with K, L, or 5)"
+                placeholder="WIF (K, L, 5...) or 64-character hex string"
                 value={importWif}
                 onChange={(e) => {
                   setImportWif(e.target.value);

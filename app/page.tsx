@@ -309,6 +309,7 @@ export default function SaibunPage() {
   // State for each step
   const [privateKeyWif, setPrivateKeyWif] = useState<string>("");
   const [address, setAddress] = useState<string>("");
+  const [keyFromHex, setKeyFromHex] = useState<boolean>(false);
   const [utxos, setUtxos] = useState<BitailsUtxo[]>([]);
   const [splitConfig, setSplitConfig] = useState<SplitConfigType | null>(null);
   const [isOfflineMode, setIsOfflineMode] = useState<boolean>(false);
@@ -320,9 +321,10 @@ export default function SaibunPage() {
     { id: "build" as Step, label: "Build" },
   ];
 
-  const handleKeyReady = (wif: string, addr: string) => {
+  const handleKeyReady = (wif: string, addr: string, fromHex?: boolean) => {
     setPrivateKeyWif(wif);
     setAddress(addr);
+    setKeyFromHex(fromHex === true);
     if (!completedSteps.includes("keys")) {
       setCompletedSteps([...completedSteps, "keys"]);
     }
@@ -357,6 +359,7 @@ export default function SaibunPage() {
     setCompletedSteps([]);
     setPrivateKeyWif("");
     setAddress("");
+    setKeyFromHex(false);
     setUtxos([]);
     setSplitConfig(null);
   };
@@ -469,6 +472,7 @@ export default function SaibunPage() {
               utxos={utxos}
               config={splitConfig}
               isOfflineMode={isOfflineMode}
+              keyFromHex={keyFromHex}
             />
           )}
         </div>
