@@ -107,7 +107,10 @@ export default function TermsPage() {
             </p>
             <ul className="text-sm text-muted-foreground space-y-1.5 ml-4 list-disc">
               <li>
-                <strong className="text-foreground">Security of your private keys</strong> — Never share your private keys 
+                <strong className="text-foreground">Use only small amounts</strong> — Do not use this tool with more than a small amount of BSV. There is always a risk of losing funds.
+              </li>
+              <li>
+                <strong className="text-foreground">Security of your private keys</strong> — Never share your private keys
                 with anyone or enter them on untrusted websites
               </li>
               <li>
