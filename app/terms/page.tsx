@@ -51,8 +51,11 @@ export default function TermsPage() {
                 <p className="font-medium text-foreground">
                   Important: Please read these terms carefully
                 </p>
+                <p className="font-medium text-amber-600 dark:text-amber-400">
+                  Do not use this tool with more than a small amount of BSV. There is always a risk of losing funds.
+                </p>
                 <p className="text-muted-foreground">
-                  By using Saibun tools, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. 
+                  By using Saibun tools, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
                   Bitcoin transactions are <strong className="text-foreground">irreversible</strong> and cannot be undone.
                 </p>
               </div>

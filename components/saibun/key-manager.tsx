@@ -446,12 +446,15 @@ export function KeyManager({ onKeyReady }: KeyManagerProps) {
         </TabsContent>
       </Tabs>
 
-      <div className="bg-muted/50 border border-border rounded-lg p-3 sm:p-4">
+      <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3 sm:p-4">
         <div className="flex gap-2 sm:gap-3">
-          <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground shrink-0 mt-0.5" />
-          <div className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            <p className="font-medium text-foreground mb-1">Security Notice</p>
-            <p>
+          <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="text-xs sm:text-sm leading-relaxed">
+            <p className="font-medium text-amber-600 dark:text-amber-400 mb-1">Security Notice</p>
+            <p className="text-amber-600 dark:text-amber-400">
+              Do not use this tool with more than a small amount — there is always a risk of losing funds.
+            </p>
+            <p className="text-muted-foreground mt-1">
               Your private key is generated entirely in your browser and never
               leaves your device. Always backup your WIF before funding the
               address.

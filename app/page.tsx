@@ -282,9 +282,12 @@ function WelcomeDialog() {
         </DialogHeader>
         <div className="space-y-3 text-sm">
           <div className="space-y-1">
+            <p className="font-medium text-amber-600 dark:text-amber-400">Security Notice</p>
+            <p className="text-amber-600 dark:text-amber-400">Do not use this tool with more than a small amount — there is always a risk of losing funds.</p>
+          </div>
+          <div className="space-y-1">
             <p className="font-medium text-foreground">Quick start</p>
             <ol className="list-decimal list-inside text-muted-foreground space-y-1">
-              <li className="text-amber-600 dark:text-amber-400 font-medium">Do not use this tool with more than a small amount — there is always a risk of losing funds.</li>
               <li>Generate or import a key.</li>
               <li>Fetch UTXOs online or paste raw tx hex offline.</li>
               <li>Choose output count, satoshis per output, and fee rate.</li>
